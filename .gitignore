@@ -1,0 +1,52 @@
+# === Secrets & Environment ===
+.env
+.env.local
+.env.*.local
+db_pass.txt
+firebase-credentials.json
+*.pem
+*.key
+
+# === Python (Backend) ===
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.flake8
+
+# === Android ===
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+/google-services.json
+*.keystore
+!debug.keystore
+
+# === Node.js & Hardhat ===
+node_modules/
+/backend/hardhat/artifacts/
+/backend/hardhat/cache/
+/backend/hardhat/typechain/
+/backend/hardhat/typechain-types/
+coverage/
+coverage.json
+.openzeppelin/
+
+# === System Files ===
+.DS_Store
+Thumbs.db
