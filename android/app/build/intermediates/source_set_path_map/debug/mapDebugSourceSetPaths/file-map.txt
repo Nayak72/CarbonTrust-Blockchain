@@ -1,0 +1,90 @@
+com.carboncredit.app-material-icons-extended-release-0 /home/koushiknayakau/.gradle/caches/transforms-4/03a3feb5802fb6fd692bb3eb41127256/transformed/material-icons-extended-release/res
+com.carboncredit.app-ui-unit-release-1 /home/koushiknayakau/.gradle/caches/transforms-4/0753d74997b9bd2ae00188aff495d1a9/transformed/ui-unit-release/res
+com.carboncredit.app-zxing-android-embedded-4.3.0-2 /home/koushiknayakau/.gradle/caches/transforms-4/086a51af6c520ab76e214fde5b9047de/transformed/zxing-android-embedded-4.3.0/res
+com.carboncredit.app-appcompat-resources-1.7.0-3 /home/koushiknayakau/.gradle/caches/transforms-4/0c3ddb77b70cfe77677f72c598342ff6/transformed/appcompat-resources-1.7.0/res
+com.carboncredit.app-activity-compose-1.9.0-4 /home/koushiknayakau/.gradle/caches/transforms-4/0d2c4f62b8df6114de62a4b81f724303/transformed/activity-compose-1.9.0/res
+com.carboncredit.app-constraintlayout-2.0.1-5 /home/koushiknayakau/.gradle/caches/transforms-4/0d4105f415321aeb3448a437dc529f7e/transformed/constraintlayout-2.0.1/res
+com.carboncredit.app-ads-adservices-1.0.0-beta05-6 /home/koushiknayakau/.gradle/caches/transforms-4/13a593ef4be1fc1806434d37e5406c36/transformed/ads-adservices-1.0.0-beta05/res
+com.carboncredit.app-recyclerview-1.1.0-7 /home/koushiknayakau/.gradle/caches/transforms-4/172b2618d2034d51bf36cda1cec90edd/transformed/recyclerview-1.1.0/res
+com.carboncredit.app-material-1.12.0-8 /home/koushiknayakau/.gradle/caches/transforms-4/1e49273e8bce1332dcac5445906640df/transformed/material-1.12.0/res
+com.carboncredit.app-lifecycle-service-2.8.4-9 /home/koushiknayakau/.gradle/caches/transforms-4/20904b947445fcf084d2da4b139f2930/transformed/lifecycle-service-2.8.4/res
+com.carboncredit.app-lifecycle-livedata-ktx-2.8.4-10 /home/koushiknayakau/.gradle/caches/transforms-4/25468e671565218591cde361e7a752e2/transformed/lifecycle-livedata-ktx-2.8.4/res
+com.carboncredit.app-ui-tooling-preview-release-11 /home/koushiknayakau/.gradle/caches/transforms-4/25c52b825e9da22daf4e5252086e33d8/transformed/ui-tooling-preview-release/res
+com.carboncredit.app-room-ktx-2.5.0-12 /home/koushiknayakau/.gradle/caches/transforms-4/2c7fa3e96dd55f8a01a48c2f9a7a274b/transformed/room-ktx-2.5.0/res
+com.carboncredit.app-firebase-messaging-24.0.0-13 /home/koushiknayakau/.gradle/caches/transforms-4/2ca0e8015de9b7aad226916171aebc8f/transformed/firebase-messaging-24.0.0/res
+com.carboncredit.app-coordinatorlayout-1.1.0-14 /home/koushiknayakau/.gradle/caches/transforms-4/3085b6b0313d529d756103de6f54910c/transformed/coordinatorlayout-1.1.0/res
+com.carboncredit.app-navigation-runtime-ktx-2.7.7-15 /home/koushiknayakau/.gradle/caches/transforms-4/31ff5333c1a4fc71b7fd1f83de086b31/transformed/navigation-runtime-ktx-2.7.7/res
+com.carboncredit.app-material-release-16 /home/koushiknayakau/.gradle/caches/transforms-4/355ebc7ec486e1ed5aed3835b43d5d41/transformed/material-release/res
+com.carboncredit.app-animation-core-release-17 /home/koushiknayakau/.gradle/caches/transforms-4/3997443b4d33337970fde9fcc22a19c1/transformed/animation-core-release/res
+com.carboncredit.app-cardview-1.0.0-18 /home/koushiknayakau/.gradle/caches/transforms-4/39990d327ebf81ac7fd6845ae0547971/transformed/cardview-1.0.0/res
+com.carboncredit.app-profileinstaller-1.3.1-19 /home/koushiknayakau/.gradle/caches/transforms-4/3b8cd27a75e2d7771e90db38372f34ca/transformed/profileinstaller-1.3.1/res
+com.carboncredit.app-startup-runtime-1.1.1-20 /home/koushiknayakau/.gradle/caches/transforms-4/3d81ff07438260eea3ee50dcd75ce49d/transformed/startup-runtime-1.1.1/res
+com.carboncredit.app-lifecycle-runtime-release-21 /home/koushiknayakau/.gradle/caches/transforms-4/3eb5553a6627d9628735ab0f1ec00535/transformed/lifecycle-runtime-release/res
+com.carboncredit.app-navigation-common-2.7.7-22 /home/koushiknayakau/.gradle/caches/transforms-4/41baa0136bf1c697c152df406fb870f9/transformed/navigation-common-2.7.7/res
+com.carboncredit.app-navigation-common-ktx-2.7.7-23 /home/koushiknayakau/.gradle/caches/transforms-4/42922431c002722a3a9a8dc6ca4359a1/transformed/navigation-common-ktx-2.7.7/res
+com.carboncredit.app-transition-1.5.0-24 /home/koushiknayakau/.gradle/caches/transforms-4/46030ca8906a7ec1285282a9cdd88a15/transformed/transition-1.5.0/res
+com.carboncredit.app-hilt-navigation-1.2.0-25 /home/koushiknayakau/.gradle/caches/transforms-4/4bd481680a029a0fcca885ea623c3418/transformed/hilt-navigation-1.2.0/res
+com.carboncredit.app-navigation-compose-2.7.7-26 /home/koushiknayakau/.gradle/caches/transforms-4/51bada7956febda89d544464c3b49477/transformed/navigation-compose-2.7.7/res
+com.carboncredit.app-foundation-layout-release-27 /home/koushiknayakau/.gradle/caches/transforms-4/5299c057207d8009e59e52258d8b7f2a/transformed/foundation-layout-release/res
+com.carboncredit.app-work-runtime-ktx-2.9.0-28 /home/koushiknayakau/.gradle/caches/transforms-4/52af81ed1995e3922c1974894093ec34/transformed/work-runtime-ktx-2.9.0/res
+com.carboncredit.app-core-runtime-2.2.0-29 /home/koushiknayakau/.gradle/caches/transforms-4/551ee3db623ab3d4b37c0864b7401c98/transformed/core-runtime-2.2.0/res
+com.carboncredit.app-lifecycle-runtime-ktx-release-30 /home/koushiknayakau/.gradle/caches/transforms-4/56f28264127c20e5416feb32daa97183/transformed/lifecycle-runtime-ktx-release/res
+com.carboncredit.app-emoji2-views-helper-1.3.0-31 /home/koushiknayakau/.gradle/caches/transforms-4/5953b6edc254f72c271b28e8ea892ffa/transformed/emoji2-views-helper-1.3.0/res
+com.carboncredit.app-appcompat-1.7.0-32 /home/koushiknayakau/.gradle/caches/transforms-4/59e97dc05ba48c4f247596d35a0d5d39/transformed/appcompat-1.7.0/res
+com.carboncredit.app-browser-1.8.0-33 /home/koushiknayakau/.gradle/caches/transforms-4/5ce51c5b628a5202e0156600e3eda8d6/transformed/browser-1.8.0/res
+com.carboncredit.app-emoji2-1.3.0-34 /home/koushiknayakau/.gradle/caches/transforms-4/64151a872614bb6c58bbcddc12180359/transformed/emoji2-1.3.0/res
+com.carboncredit.app-play-services-basement-18.3.0-35 /home/koushiknayakau/.gradle/caches/transforms-4/67a49f8d4a01faa35b8f4ab84d39f97b/transformed/play-services-basement-18.3.0/res
+com.carboncredit.app-play-services-measurement-api-22.0.1-36 /home/koushiknayakau/.gradle/caches/transforms-4/68b44af8e4f92980518161ad9bfbfc37/transformed/play-services-measurement-api-22.0.1/res
+com.carboncredit.app-runtime-release-37 /home/koushiknayakau/.gradle/caches/transforms-4/7047b274894cee9da2920d639b1b9d02/transformed/runtime-release/res
+com.carboncredit.app-annotation-experimental-1.4.0-38 /home/koushiknayakau/.gradle/caches/transforms-4/74c627e71746a46eabd4340a8bb93063/transformed/annotation-experimental-1.4.0/res
+com.carboncredit.app-lifecycle-livedata-2.8.4-39 /home/koushiknayakau/.gradle/caches/transforms-4/772d16a3989304cf0a17c57e9f1e1ea5/transformed/lifecycle-livedata-2.8.4/res
+com.carboncredit.app-lifecycle-runtime-compose-release-40 /home/koushiknayakau/.gradle/caches/transforms-4/79ad2bac73d72c7c8613add7485ab41e/transformed/lifecycle-runtime-compose-release/res
+com.carboncredit.app-runtime-saveable-release-41 /home/koushiknayakau/.gradle/caches/transforms-4/7d56555ec51a5ffeca2a1afcb999e395/transformed/runtime-saveable-release/res
+com.carboncredit.app-hilt-navigation-compose-1.2.0-42 /home/koushiknayakau/.gradle/caches/transforms-4/7f6d9b37f360450a8f53f383f75d9cac/transformed/hilt-navigation-compose-1.2.0/res
+com.carboncredit.app-core-1.13.1-43 /home/koushiknayakau/.gradle/caches/transforms-4/7f8905758a7a9626d17adc2a31a1dbe0/transformed/core-1.13.1/res
+com.carboncredit.app-fragment-1.5.4-44 /home/koushiknayakau/.gradle/caches/transforms-4/826eadd4e26985321573bcc5728dc11f/transformed/fragment-1.5.4/res
+com.carboncredit.app-material-ripple-release-45 /home/koushiknayakau/.gradle/caches/transforms-4/82b19499f5580acda086b7e85802daae/transformed/material-ripple-release/res
+com.carboncredit.app-material3-release-46 /home/koushiknayakau/.gradle/caches/transforms-4/928a900fbf7aac1bcadcd2f13febc9d2/transformed/material3-release/res
+com.carboncredit.app-play-services-base-18.0.1-47 /home/koushiknayakau/.gradle/caches/transforms-4/982fd4980e7eab1a239727c1cc4dd077/transformed/play-services-base-18.0.1/res
+com.carboncredit.app-ui-tooling-release-48 /home/koushiknayakau/.gradle/caches/transforms-4/98323ab981ac5530b1be1099fa25e483/transformed/ui-tooling-release/res
+com.carboncredit.app-material-icons-core-release-49 /home/koushiknayakau/.gradle/caches/transforms-4/986c744bfffb67949d9d40c5eb2c4a4f/transformed/material-icons-core-release/res
+com.carboncredit.app-ui-text-release-50 /home/koushiknayakau/.gradle/caches/transforms-4/997b25210246b72d0dd1963e521b1b98/transformed/ui-text-release/res
+com.carboncredit.app-lifecycle-livedata-core-ktx-2.8.4-51 /home/koushiknayakau/.gradle/caches/transforms-4/9b39d8688f0da8378ac3120ae6d30b8a/transformed/lifecycle-livedata-core-ktx-2.8.4/res
+com.carboncredit.app-ui-geometry-release-52 /home/koushiknayakau/.gradle/caches/transforms-4/9e14c183391ef3da81a8aaa36fcb5174/transformed/ui-geometry-release/res
+com.carboncredit.app-activity-1.9.0-53 /home/koushiknayakau/.gradle/caches/transforms-4/b0e2345f9e31488d090e8d7727c049f3/transformed/activity-1.9.0/res
+com.carboncredit.app-ui-util-release-54 /home/koushiknayakau/.gradle/caches/transforms-4/b35420d2b0aa121c540e36ed7656002b/transformed/ui-util-release/res
+com.carboncredit.app-core-ktx-1.13.1-55 /home/koushiknayakau/.gradle/caches/transforms-4/b4f755f3d87b02f8ba6c5eaaac3f4fed/transformed/core-ktx-1.13.1/res
+com.carboncredit.app-room-runtime-2.5.0-56 /home/koushiknayakau/.gradle/caches/transforms-4/b51712bcab480aa0cf83a7e782871845/transformed/room-runtime-2.5.0/res
+com.carboncredit.app-drawerlayout-1.1.1-57 /home/koushiknayakau/.gradle/caches/transforms-4/b57b86c3e721ea8db0b203110c6b402e/transformed/drawerlayout-1.1.1/res
+com.carboncredit.app-savedstate-ktx-1.2.1-58 /home/koushiknayakau/.gradle/caches/transforms-4/b6419426954f3518a30a59e89df9fa48/transformed/savedstate-ktx-1.2.1/res
+com.carboncredit.app-animation-release-59 /home/koushiknayakau/.gradle/caches/transforms-4/b74df4c7f928fad3cc0c1c6f15e3416f/transformed/animation-release/res
+com.carboncredit.app-lifecycle-viewmodel-release-60 /home/koushiknayakau/.gradle/caches/transforms-4/b86bbfd2ebde6eb68b99ef7c0fd61c26/transformed/lifecycle-viewmodel-release/res
+com.carboncredit.app-lifecycle-process-2.8.4-61 /home/koushiknayakau/.gradle/caches/transforms-4/b88bb46f92d5f927fe75a235d8817a04/transformed/lifecycle-process-2.8.4/res
+com.carboncredit.app-ui-tooling-data-release-62 /home/koushiknayakau/.gradle/caches/transforms-4/b96d8cff4eb6b0f18b0b71ac260626f9/transformed/ui-tooling-data-release/res
+com.carboncredit.app-lifecycle-viewmodel-ktx-2.8.4-63 /home/koushiknayakau/.gradle/caches/transforms-4/ba78b74907942d442d7959579958fa64/transformed/lifecycle-viewmodel-ktx-2.8.4/res
+com.carboncredit.app-sqlite-2.3.0-64 /home/koushiknayakau/.gradle/caches/transforms-4/ba97822705ad836c3606fd7216d2e558/transformed/sqlite-2.3.0/res
+com.carboncredit.app-foundation-release-65 /home/koushiknayakau/.gradle/caches/transforms-4/bc7f82cd3baabc5682d2729c5ca2221c/transformed/foundation-release/res
+com.carboncredit.app-savedstate-1.2.1-66 /home/koushiknayakau/.gradle/caches/transforms-4/be2a6a56342e0431c090342e859ea6c7/transformed/savedstate-1.2.1/res
+com.carboncredit.app-lifecycle-viewmodel-compose-release-67 /home/koushiknayakau/.gradle/caches/transforms-4/bfdcacdf2f97da0c584ab8330e38388e/transformed/lifecycle-viewmodel-compose-release/res
+com.carboncredit.app-ui-graphics-release-68 /home/koushiknayakau/.gradle/caches/transforms-4/c1c2e5891e0dba799e82977b6c179758/transformed/ui-graphics-release/res
+com.carboncredit.app-security-crypto-1.1.0-alpha06-69 /home/koushiknayakau/.gradle/caches/transforms-4/c53cc7eeca5a57104f2137c152e0ec22/transformed/security-crypto-1.1.0-alpha06/res
+com.carboncredit.app-viewpager2-1.0.0-70 /home/koushiknayakau/.gradle/caches/transforms-4/c554d37de5b7a710194ae9f4fe261df2/transformed/viewpager2-1.0.0/res
+com.carboncredit.app-firebase-common-21.0.0-71 /home/koushiknayakau/.gradle/caches/transforms-4/cb8076c4abe37a181b83fe4ef41584a5/transformed/firebase-common-21.0.0/res
+com.carboncredit.app-work-runtime-2.9.0-72 /home/koushiknayakau/.gradle/caches/transforms-4/d2cbf18569e9a00442a3a10027f504a6/transformed/work-runtime-2.9.0/res
+com.carboncredit.app-coil-base-2.6.0-73 /home/koushiknayakau/.gradle/caches/transforms-4/dbbf8fe278f7fb68244cb06d61a77621/transformed/coil-base-2.6.0/res
+com.carboncredit.app-ui-release-74 /home/koushiknayakau/.gradle/caches/transforms-4/df01f6c1241bbe1d2f9101b8f8fbe9c2/transformed/ui-release/res
+com.carboncredit.app-lifecycle-viewmodel-savedstate-2.8.4-75 /home/koushiknayakau/.gradle/caches/transforms-4/e1cf995a1e99db0436673947939e7e54/transformed/lifecycle-viewmodel-savedstate-2.8.4/res
+com.carboncredit.app-lifecycle-livedata-core-2.8.4-76 /home/koushiknayakau/.gradle/caches/transforms-4/ebd66877dfdc69763feff1f9ab719d50/transformed/lifecycle-livedata-core-2.8.4/res
+com.carboncredit.app-activity-ktx-1.9.0-77 /home/koushiknayakau/.gradle/caches/transforms-4/ebfdee812740e721dbb1ba42c75eb2c6/transformed/activity-ktx-1.9.0/res
+com.carboncredit.app-ads-adservices-java-1.0.0-beta05-78 /home/koushiknayakau/.gradle/caches/transforms-4/f2a39144f7cf1be54c54b5b7d8d363e5/transformed/ads-adservices-java-1.0.0-beta05/res
+com.carboncredit.app-navigation-runtime-2.7.7-79 /home/koushiknayakau/.gradle/caches/transforms-4/f40502b4e2dfe8d557d14a9f608cd861/transformed/navigation-runtime-2.7.7/res
+com.carboncredit.app-customview-poolingcontainer-1.0.0-80 /home/koushiknayakau/.gradle/caches/transforms-4/f504d98b59a01fc9d6374d5f9a4acfe9/transformed/customview-poolingcontainer-1.0.0/res
+com.carboncredit.app-sqlite-framework-2.3.0-81 /home/koushiknayakau/.gradle/caches/transforms-4/f7b4dcf6e0949e622dab684f29405a5d/transformed/sqlite-framework-2.3.0/res
+com.carboncredit.app-pngs-82 /home/koushiknayakau/IDP 2/android/app/build/generated/res/pngs/debug
+com.carboncredit.app-res-83 /home/koushiknayakau/IDP 2/android/app/build/generated/res/processDebugGoogleServices
+com.carboncredit.app-resValues-84 /home/koushiknayakau/IDP 2/android/app/build/generated/res/resValues/debug
+com.carboncredit.app-packageDebugResources-85 /home/koushiknayakau/IDP 2/android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.carboncredit.app-packageDebugResources-86 /home/koushiknayakau/IDP 2/android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.carboncredit.app-debug-87 /home/koushiknayakau/IDP 2/android/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.carboncredit.app-debug-88 /home/koushiknayakau/IDP 2/android/app/src/debug/res
+com.carboncredit.app-main-89 /home/koushiknayakau/IDP 2/android/app/src/main/res

@@ -1,0 +1,972 @@
+package com.carboncredit.app;
+
+import android.app.Activity;
+import android.app.Service;
+import android.view.View;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.ViewModel;
+import com.carboncredit.app.core.network.ApiService;
+import com.carboncredit.app.core.security.TokenManager;
+import com.carboncredit.app.data.repository.AnomalyRepository;
+import com.carboncredit.app.data.repository.AuthRepository;
+import com.carboncredit.app.data.repository.BlockchainRepository;
+import com.carboncredit.app.data.repository.CreditRepository;
+import com.carboncredit.app.data.repository.FacilityRepository;
+import com.carboncredit.app.data.repository.NotificationRepository;
+import com.carboncredit.app.data.repository.SensorRepository;
+import com.carboncredit.app.di.AppModule_ProvideTokenManagerFactory;
+import com.carboncredit.app.di.NetworkModule_ProvideApiServiceFactory;
+import com.carboncredit.app.di.NetworkModule_ProvideRetrofitFactory;
+import com.carboncredit.app.di.NetworkModule_ProvideSupabaseClientFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideAnomalyRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideAuthRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideBlockchainRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideCreditRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideFacilityRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideNotificationRepositoryFactory;
+import com.carboncredit.app.di.RepositoryModule_ProvideSensorRepositoryFactory;
+import com.carboncredit.app.services.FCMService;
+import com.carboncredit.app.services.FCMService_MembersInjector;
+import com.carboncredit.app.ui.auditor.AuditorActivity;
+import com.carboncredit.app.ui.auditor.comparison.FacilityComparisonViewModel;
+import com.carboncredit.app.ui.auditor.comparison.FacilityComparisonViewModel_HiltModules;
+import com.carboncredit.app.ui.auditor.dashboard.AuditorDashboardViewModel;
+import com.carboncredit.app.ui.auditor.dashboard.AuditorDashboardViewModel_HiltModules;
+import com.carboncredit.app.ui.auditor.facility.FacilityDetailViewModel;
+import com.carboncredit.app.ui.auditor.facility.FacilityDetailViewModel_HiltModules;
+import com.carboncredit.app.ui.auditor.reports.AuditReportViewModel;
+import com.carboncredit.app.ui.auditor.reports.AuditReportViewModel_HiltModules;
+import com.carboncredit.app.ui.auditor.verification.BlockchainVerificationViewModel;
+import com.carboncredit.app.ui.auditor.verification.BlockchainVerificationViewModel_HiltModules;
+import com.carboncredit.app.ui.auth.LoginActivity;
+import com.carboncredit.app.ui.auth.LoginViewModel;
+import com.carboncredit.app.ui.auth.LoginViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.ManagerActivity;
+import com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsViewModel;
+import com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.anomalies.AnomalyLogViewModel;
+import com.carboncredit.app.ui.manager.anomalies.AnomalyLogViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.credits.CreditDetailViewModel;
+import com.carboncredit.app.ui.manager.credits.CreditDetailViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.credits.CreditLedgerViewModel;
+import com.carboncredit.app.ui.manager.credits.CreditLedgerViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.dashboard.DashboardViewModel;
+import com.carboncredit.app.ui.manager.dashboard.DashboardViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.notifications.NotificationsViewModel;
+import com.carboncredit.app.ui.manager.notifications.NotificationsViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.profile.ProfileViewModel;
+import com.carboncredit.app.ui.manager.profile.ProfileViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.sensors.SensorDetailViewModel;
+import com.carboncredit.app.ui.manager.sensors.SensorDetailViewModel_HiltModules;
+import com.carboncredit.app.ui.manager.sensors.SensorListViewModel;
+import com.carboncredit.app.ui.manager.sensors.SensorListViewModel_HiltModules;
+import com.carboncredit.app.ui.splash.SplashActivity;
+import com.carboncredit.app.ui.splash.SplashActivity_MembersInjector;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import dagger.hilt.android.ActivityRetainedLifecycle;
+import dagger.hilt.android.ViewModelLifecycle;
+import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
+import dagger.hilt.android.internal.builders.ActivityRetainedComponentBuilder;
+import dagger.hilt.android.internal.builders.FragmentComponentBuilder;
+import dagger.hilt.android.internal.builders.ServiceComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewModelComponentBuilder;
+import dagger.hilt.android.internal.builders.ViewWithFragmentComponentBuilder;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
+import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_InternalFactoryFactory_Factory;
+import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
+import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
+import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.DoubleCheck;
+import dagger.internal.IdentifierNameString;
+import dagger.internal.KeepFieldType;
+import dagger.internal.LazyClassKeyMap;
+import dagger.internal.Preconditions;
+import dagger.internal.Provider;
+import io.github.jan.supabase.SupabaseClient;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.processing.Generated;
+import retrofit2.Retrofit;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast"
+})
+public final class DaggerCarbonCreditApp_HiltComponents_SingletonC {
+  private DaggerCarbonCreditApp_HiltComponents_SingletonC() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+    private ApplicationContextModule applicationContextModule;
+
+    private Builder() {
+    }
+
+    public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
+      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      return this;
+    }
+
+    public CarbonCreditApp_HiltComponents.SingletonC build() {
+      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
+      return new SingletonCImpl(applicationContextModule);
+    }
+  }
+
+  private static final class ActivityRetainedCBuilder implements CarbonCreditApp_HiltComponents.ActivityRetainedC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private SavedStateHandleHolder savedStateHandleHolder;
+
+    private ActivityRetainedCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ActivityRetainedCBuilder savedStateHandleHolder(
+        SavedStateHandleHolder savedStateHandleHolder) {
+      this.savedStateHandleHolder = Preconditions.checkNotNull(savedStateHandleHolder);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ActivityRetainedC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandleHolder, SavedStateHandleHolder.class);
+      return new ActivityRetainedCImpl(singletonCImpl, savedStateHandleHolder);
+    }
+  }
+
+  private static final class ActivityCBuilder implements CarbonCreditApp_HiltComponents.ActivityC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private Activity activity;
+
+    private ActivityCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ActivityCBuilder activity(Activity activity) {
+      this.activity = Preconditions.checkNotNull(activity);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ActivityC build() {
+      Preconditions.checkBuilderRequirement(activity, Activity.class);
+      return new ActivityCImpl(singletonCImpl, activityRetainedCImpl, activity);
+    }
+  }
+
+  private static final class FragmentCBuilder implements CarbonCreditApp_HiltComponents.FragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private Fragment fragment;
+
+    private FragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public FragmentCBuilder fragment(Fragment fragment) {
+      this.fragment = Preconditions.checkNotNull(fragment);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.FragmentC build() {
+      Preconditions.checkBuilderRequirement(fragment, Fragment.class);
+      return new FragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragment);
+    }
+  }
+
+  private static final class ViewWithFragmentCBuilder implements CarbonCreditApp_HiltComponents.ViewWithFragmentC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private View view;
+
+    private ViewWithFragmentCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+    }
+
+    @Override
+    public ViewWithFragmentCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ViewWithFragmentC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewWithFragmentCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl, view);
+    }
+  }
+
+  private static final class ViewCBuilder implements CarbonCreditApp_HiltComponents.ViewC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private View view;
+
+    private ViewCBuilder(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+    }
+
+    @Override
+    public ViewCBuilder view(View view) {
+      this.view = Preconditions.checkNotNull(view);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ViewC build() {
+      Preconditions.checkBuilderRequirement(view, View.class);
+      return new ViewCImpl(singletonCImpl, activityRetainedCImpl, activityCImpl, view);
+    }
+  }
+
+  private static final class ViewModelCBuilder implements CarbonCreditApp_HiltComponents.ViewModelC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private SavedStateHandle savedStateHandle;
+
+    private ViewModelLifecycle viewModelLifecycle;
+
+    private ViewModelCBuilder(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+    }
+
+    @Override
+    public ViewModelCBuilder savedStateHandle(SavedStateHandle handle) {
+      this.savedStateHandle = Preconditions.checkNotNull(handle);
+      return this;
+    }
+
+    @Override
+    public ViewModelCBuilder viewModelLifecycle(ViewModelLifecycle viewModelLifecycle) {
+      this.viewModelLifecycle = Preconditions.checkNotNull(viewModelLifecycle);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ViewModelC build() {
+      Preconditions.checkBuilderRequirement(savedStateHandle, SavedStateHandle.class);
+      Preconditions.checkBuilderRequirement(viewModelLifecycle, ViewModelLifecycle.class);
+      return new ViewModelCImpl(singletonCImpl, activityRetainedCImpl, savedStateHandle, viewModelLifecycle);
+    }
+  }
+
+  private static final class ServiceCBuilder implements CarbonCreditApp_HiltComponents.ServiceC.Builder {
+    private final SingletonCImpl singletonCImpl;
+
+    private Service service;
+
+    private ServiceCBuilder(SingletonCImpl singletonCImpl) {
+      this.singletonCImpl = singletonCImpl;
+    }
+
+    @Override
+    public ServiceCBuilder service(Service service) {
+      this.service = Preconditions.checkNotNull(service);
+      return this;
+    }
+
+    @Override
+    public CarbonCreditApp_HiltComponents.ServiceC build() {
+      Preconditions.checkBuilderRequirement(service, Service.class);
+      return new ServiceCImpl(singletonCImpl, service);
+    }
+  }
+
+  private static final class ViewWithFragmentCImpl extends CarbonCreditApp_HiltComponents.ViewWithFragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl;
+
+    private final ViewWithFragmentCImpl viewWithFragmentCImpl = this;
+
+    private ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        FragmentCImpl fragmentCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+      this.fragmentCImpl = fragmentCImpl;
+
+
+    }
+  }
+
+  private static final class FragmentCImpl extends CarbonCreditApp_HiltComponents.FragmentC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final FragmentCImpl fragmentCImpl = this;
+
+    private FragmentCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
+        Fragment fragmentParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return activityCImpl.getHiltInternalFactoryFactory();
+    }
+
+    @Override
+    public ViewWithFragmentComponentBuilder viewWithFragmentComponentBuilder() {
+      return new ViewWithFragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl, fragmentCImpl);
+    }
+  }
+
+  private static final class ViewCImpl extends CarbonCreditApp_HiltComponents.ViewC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl;
+
+    private final ViewCImpl viewCImpl = this;
+
+    private ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl, View viewParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+      this.activityCImpl = activityCImpl;
+
+
+    }
+  }
+
+  private static final class ActivityCImpl extends CarbonCreditApp_HiltComponents.ActivityC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ActivityCImpl activityCImpl = this;
+
+    private ActivityCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, Activity activityParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+
+    }
+
+    @Override
+    public void injectAuditorActivity(AuditorActivity arg0) {
+    }
+
+    @Override
+    public void injectLoginActivity(LoginActivity arg0) {
+    }
+
+    @Override
+    public void injectManagerActivity(ManagerActivity arg0) {
+    }
+
+    @Override
+    public void injectSplashActivity(SplashActivity arg0) {
+      injectSplashActivity2(arg0);
+    }
+
+    @Override
+    public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
+      return DefaultViewModelFactories_InternalFactoryFactory_Factory.newInstance(getViewModelKeys(), new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl));
+    }
+
+    @Override
+    public Map<Class<?>, Boolean> getViewModelKeys() {
+      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>builderWithExpectedSize(15).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel, AnomalyLogViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_reports_AuditReportViewModel, AuditReportViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel, AuditorDashboardViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel, BlockchainVerificationViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_credits_CreditDetailViewModel, CreditDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel, CreditLedgerViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_dashboard_DashboardViewModel, DashboardViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel, EmissionAnalyticsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel, FacilityComparisonViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel, FacilityDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_auth_LoginViewModel, LoginViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_notifications_NotificationsViewModel, NotificationsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_profile_ProfileViewModel, ProfileViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel, SensorDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_sensors_SensorListViewModel, SensorListViewModel_HiltModules.KeyModule.provide()).build());
+    }
+
+    @Override
+    public ViewModelComponentBuilder getViewModelComponentBuilder() {
+      return new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public FragmentComponentBuilder fragmentComponentBuilder() {
+      return new FragmentCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @Override
+    public ViewComponentBuilder viewComponentBuilder() {
+      return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
+    }
+
+    @CanIgnoreReturnValue
+    private SplashActivity injectSplashActivity2(SplashActivity instance) {
+      SplashActivity_MembersInjector.injectTokenManager(instance, singletonCImpl.provideTokenManagerProvider.get());
+      return instance;
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel = "com.carboncredit.app.ui.auditor.facility.FacilityDetailViewModel";
+
+      static String com_carboncredit_app_ui_manager_profile_ProfileViewModel = "com.carboncredit.app.ui.manager.profile.ProfileViewModel";
+
+      static String com_carboncredit_app_ui_manager_notifications_NotificationsViewModel = "com.carboncredit.app.ui.manager.notifications.NotificationsViewModel";
+
+      static String com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel = "com.carboncredit.app.ui.manager.anomalies.AnomalyLogViewModel";
+
+      static String com_carboncredit_app_ui_manager_credits_CreditDetailViewModel = "com.carboncredit.app.ui.manager.credits.CreditDetailViewModel";
+
+      static String com_carboncredit_app_ui_auditor_reports_AuditReportViewModel = "com.carboncredit.app.ui.auditor.reports.AuditReportViewModel";
+
+      static String com_carboncredit_app_ui_manager_dashboard_DashboardViewModel = "com.carboncredit.app.ui.manager.dashboard.DashboardViewModel";
+
+      static String com_carboncredit_app_ui_manager_sensors_SensorListViewModel = "com.carboncredit.app.ui.manager.sensors.SensorListViewModel";
+
+      static String com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel = "com.carboncredit.app.ui.auditor.comparison.FacilityComparisonViewModel";
+
+      static String com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel = "com.carboncredit.app.ui.auditor.verification.BlockchainVerificationViewModel";
+
+      static String com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel = "com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsViewModel";
+
+      static String com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel = "com.carboncredit.app.ui.manager.credits.CreditLedgerViewModel";
+
+      static String com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel = "com.carboncredit.app.ui.auditor.dashboard.AuditorDashboardViewModel";
+
+      static String com_carboncredit_app_ui_auth_LoginViewModel = "com.carboncredit.app.ui.auth.LoginViewModel";
+
+      static String com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel = "com.carboncredit.app.ui.manager.sensors.SensorDetailViewModel";
+
+      @KeepFieldType
+      FacilityDetailViewModel com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel2;
+
+      @KeepFieldType
+      ProfileViewModel com_carboncredit_app_ui_manager_profile_ProfileViewModel2;
+
+      @KeepFieldType
+      NotificationsViewModel com_carboncredit_app_ui_manager_notifications_NotificationsViewModel2;
+
+      @KeepFieldType
+      AnomalyLogViewModel com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel2;
+
+      @KeepFieldType
+      CreditDetailViewModel com_carboncredit_app_ui_manager_credits_CreditDetailViewModel2;
+
+      @KeepFieldType
+      AuditReportViewModel com_carboncredit_app_ui_auditor_reports_AuditReportViewModel2;
+
+      @KeepFieldType
+      DashboardViewModel com_carboncredit_app_ui_manager_dashboard_DashboardViewModel2;
+
+      @KeepFieldType
+      SensorListViewModel com_carboncredit_app_ui_manager_sensors_SensorListViewModel2;
+
+      @KeepFieldType
+      FacilityComparisonViewModel com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel2;
+
+      @KeepFieldType
+      BlockchainVerificationViewModel com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel2;
+
+      @KeepFieldType
+      EmissionAnalyticsViewModel com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel2;
+
+      @KeepFieldType
+      CreditLedgerViewModel com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel2;
+
+      @KeepFieldType
+      AuditorDashboardViewModel com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_carboncredit_app_ui_auth_LoginViewModel2;
+
+      @KeepFieldType
+      SensorDetailViewModel com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel2;
+    }
+  }
+
+  private static final class ViewModelCImpl extends CarbonCreditApp_HiltComponents.ViewModelC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl;
+
+    private final ViewModelCImpl viewModelCImpl = this;
+
+    private Provider<AnomalyLogViewModel> anomalyLogViewModelProvider;
+
+    private Provider<AuditReportViewModel> auditReportViewModelProvider;
+
+    private Provider<AuditorDashboardViewModel> auditorDashboardViewModelProvider;
+
+    private Provider<BlockchainVerificationViewModel> blockchainVerificationViewModelProvider;
+
+    private Provider<CreditDetailViewModel> creditDetailViewModelProvider;
+
+    private Provider<CreditLedgerViewModel> creditLedgerViewModelProvider;
+
+    private Provider<DashboardViewModel> dashboardViewModelProvider;
+
+    private Provider<EmissionAnalyticsViewModel> emissionAnalyticsViewModelProvider;
+
+    private Provider<FacilityComparisonViewModel> facilityComparisonViewModelProvider;
+
+    private Provider<FacilityDetailViewModel> facilityDetailViewModelProvider;
+
+    private Provider<LoginViewModel> loginViewModelProvider;
+
+    private Provider<NotificationsViewModel> notificationsViewModelProvider;
+
+    private Provider<ProfileViewModel> profileViewModelProvider;
+
+    private Provider<SensorDetailViewModel> sensorDetailViewModelProvider;
+
+    private Provider<SensorListViewModel> sensorListViewModelProvider;
+
+    private ViewModelCImpl(SingletonCImpl singletonCImpl,
+        ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
+        ViewModelLifecycle viewModelLifecycleParam) {
+      this.singletonCImpl = singletonCImpl;
+      this.activityRetainedCImpl = activityRetainedCImpl;
+
+      initialize(savedStateHandleParam, viewModelLifecycleParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandle savedStateHandleParam,
+        final ViewModelLifecycle viewModelLifecycleParam) {
+      this.anomalyLogViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.auditReportViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.auditorDashboardViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.blockchainVerificationViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.creditDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.creditLedgerViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.dashboardViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
+      this.emissionAnalyticsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.facilityComparisonViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
+      this.facilityDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 9);
+      this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 10);
+      this.notificationsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 11);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 12);
+      this.sensorDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 13);
+      this.sensorListViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 14);
+    }
+
+    @Override
+    public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>builderWithExpectedSize(15).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel, ((Provider) anomalyLogViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_reports_AuditReportViewModel, ((Provider) auditReportViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel, ((Provider) auditorDashboardViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel, ((Provider) blockchainVerificationViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_credits_CreditDetailViewModel, ((Provider) creditDetailViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel, ((Provider) creditLedgerViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_dashboard_DashboardViewModel, ((Provider) dashboardViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel, ((Provider) emissionAnalyticsViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel, ((Provider) facilityComparisonViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel, ((Provider) facilityDetailViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_auth_LoginViewModel, ((Provider) loginViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_notifications_NotificationsViewModel, ((Provider) notificationsViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_profile_ProfileViewModel, ((Provider) profileViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel, ((Provider) sensorDetailViewModelProvider)).put(LazyClassKeyProvider.com_carboncredit_app_ui_manager_sensors_SensorListViewModel, ((Provider) sensorListViewModelProvider)).build());
+    }
+
+    @Override
+    public Map<Class<?>, Object> getHiltViewModelAssistedMap() {
+      return ImmutableMap.<Class<?>, Object>of();
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_carboncredit_app_ui_manager_credits_CreditDetailViewModel = "com.carboncredit.app.ui.manager.credits.CreditDetailViewModel";
+
+      static String com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel = "com.carboncredit.app.ui.auditor.facility.FacilityDetailViewModel";
+
+      static String com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel = "com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsViewModel";
+
+      static String com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel = "com.carboncredit.app.ui.manager.anomalies.AnomalyLogViewModel";
+
+      static String com_carboncredit_app_ui_manager_notifications_NotificationsViewModel = "com.carboncredit.app.ui.manager.notifications.NotificationsViewModel";
+
+      static String com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel = "com.carboncredit.app.ui.manager.sensors.SensorDetailViewModel";
+
+      static String com_carboncredit_app_ui_auditor_reports_AuditReportViewModel = "com.carboncredit.app.ui.auditor.reports.AuditReportViewModel";
+
+      static String com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel = "com.carboncredit.app.ui.auditor.verification.BlockchainVerificationViewModel";
+
+      static String com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel = "com.carboncredit.app.ui.manager.credits.CreditLedgerViewModel";
+
+      static String com_carboncredit_app_ui_manager_sensors_SensorListViewModel = "com.carboncredit.app.ui.manager.sensors.SensorListViewModel";
+
+      static String com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel = "com.carboncredit.app.ui.auditor.dashboard.AuditorDashboardViewModel";
+
+      static String com_carboncredit_app_ui_manager_dashboard_DashboardViewModel = "com.carboncredit.app.ui.manager.dashboard.DashboardViewModel";
+
+      static String com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel = "com.carboncredit.app.ui.auditor.comparison.FacilityComparisonViewModel";
+
+      static String com_carboncredit_app_ui_auth_LoginViewModel = "com.carboncredit.app.ui.auth.LoginViewModel";
+
+      static String com_carboncredit_app_ui_manager_profile_ProfileViewModel = "com.carboncredit.app.ui.manager.profile.ProfileViewModel";
+
+      @KeepFieldType
+      CreditDetailViewModel com_carboncredit_app_ui_manager_credits_CreditDetailViewModel2;
+
+      @KeepFieldType
+      FacilityDetailViewModel com_carboncredit_app_ui_auditor_facility_FacilityDetailViewModel2;
+
+      @KeepFieldType
+      EmissionAnalyticsViewModel com_carboncredit_app_ui_manager_analytics_EmissionAnalyticsViewModel2;
+
+      @KeepFieldType
+      AnomalyLogViewModel com_carboncredit_app_ui_manager_anomalies_AnomalyLogViewModel2;
+
+      @KeepFieldType
+      NotificationsViewModel com_carboncredit_app_ui_manager_notifications_NotificationsViewModel2;
+
+      @KeepFieldType
+      SensorDetailViewModel com_carboncredit_app_ui_manager_sensors_SensorDetailViewModel2;
+
+      @KeepFieldType
+      AuditReportViewModel com_carboncredit_app_ui_auditor_reports_AuditReportViewModel2;
+
+      @KeepFieldType
+      BlockchainVerificationViewModel com_carboncredit_app_ui_auditor_verification_BlockchainVerificationViewModel2;
+
+      @KeepFieldType
+      CreditLedgerViewModel com_carboncredit_app_ui_manager_credits_CreditLedgerViewModel2;
+
+      @KeepFieldType
+      SensorListViewModel com_carboncredit_app_ui_manager_sensors_SensorListViewModel2;
+
+      @KeepFieldType
+      AuditorDashboardViewModel com_carboncredit_app_ui_auditor_dashboard_AuditorDashboardViewModel2;
+
+      @KeepFieldType
+      DashboardViewModel com_carboncredit_app_ui_manager_dashboard_DashboardViewModel2;
+
+      @KeepFieldType
+      FacilityComparisonViewModel com_carboncredit_app_ui_auditor_comparison_FacilityComparisonViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_carboncredit_app_ui_auth_LoginViewModel2;
+
+      @KeepFieldType
+      ProfileViewModel com_carboncredit_app_ui_manager_profile_ProfileViewModel2;
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final ViewModelCImpl viewModelCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          ViewModelCImpl viewModelCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.viewModelCImpl = viewModelCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.carboncredit.app.ui.manager.anomalies.AnomalyLogViewModel 
+          return (T) new AnomalyLogViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get());
+
+          case 1: // com.carboncredit.app.ui.auditor.reports.AuditReportViewModel 
+          return (T) new AuditReportViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get());
+
+          case 2: // com.carboncredit.app.ui.auditor.dashboard.AuditorDashboardViewModel 
+          return (T) new AuditorDashboardViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get());
+
+          case 3: // com.carboncredit.app.ui.auditor.verification.BlockchainVerificationViewModel 
+          return (T) new BlockchainVerificationViewModel(singletonCImpl.provideBlockchainRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get());
+
+          case 4: // com.carboncredit.app.ui.manager.credits.CreditDetailViewModel 
+          return (T) new CreditDetailViewModel(singletonCImpl.provideCreditRepositoryProvider.get());
+
+          case 5: // com.carboncredit.app.ui.manager.credits.CreditLedgerViewModel 
+          return (T) new CreditLedgerViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get());
+
+          case 6: // com.carboncredit.app.ui.manager.dashboard.DashboardViewModel 
+          return (T) new DashboardViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get());
+
+          case 7: // com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsViewModel 
+          return (T) new EmissionAnalyticsViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get());
+
+          case 8: // com.carboncredit.app.ui.auditor.comparison.FacilityComparisonViewModel 
+          return (T) new FacilityComparisonViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get());
+
+          case 9: // com.carboncredit.app.ui.auditor.facility.FacilityDetailViewModel 
+          return (T) new FacilityDetailViewModel(singletonCImpl.provideFacilityRepositoryProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get(), singletonCImpl.provideAnomalyRepositoryProvider.get(), singletonCImpl.provideCreditRepositoryProvider.get());
+
+          case 10: // com.carboncredit.app.ui.auth.LoginViewModel 
+          return (T) new LoginViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
+
+          case 11: // com.carboncredit.app.ui.manager.notifications.NotificationsViewModel 
+          return (T) new NotificationsViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideNotificationRepositoryProvider.get());
+
+          case 12: // com.carboncredit.app.ui.manager.profile.ProfileViewModel 
+          return (T) new ProfileViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideAuthRepositoryProvider.get(), singletonCImpl.provideFacilityRepositoryProvider.get());
+
+          case 13: // com.carboncredit.app.ui.manager.sensors.SensorDetailViewModel 
+          return (T) new SensorDetailViewModel(singletonCImpl.provideSensorRepositoryProvider.get());
+
+          case 14: // com.carboncredit.app.ui.manager.sensors.SensorListViewModel 
+          return (T) new SensorListViewModel(singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideSensorRepositoryProvider.get());
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ActivityRetainedCImpl extends CarbonCreditApp_HiltComponents.ActivityRetainedC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ActivityRetainedCImpl activityRetainedCImpl = this;
+
+    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+
+    private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
+        SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.singletonCImpl = singletonCImpl;
+
+      initialize(savedStateHandleHolderParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandleHolder savedStateHandleHolderParam) {
+      this.provideActivityRetainedLifecycleProvider = DoubleCheck.provider(new SwitchingProvider<ActivityRetainedLifecycle>(singletonCImpl, activityRetainedCImpl, 0));
+    }
+
+    @Override
+    public ActivityComponentBuilder activityComponentBuilder() {
+      return new ActivityCBuilder(singletonCImpl, activityRetainedCImpl);
+    }
+
+    @Override
+    public ActivityRetainedLifecycle getActivityRetainedLifecycle() {
+      return provideActivityRetainedLifecycleProvider.get();
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // dagger.hilt.android.ActivityRetainedLifecycle 
+          return (T) ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory.provideActivityRetainedLifecycle();
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ServiceCImpl extends CarbonCreditApp_HiltComponents.ServiceC {
+    private final SingletonCImpl singletonCImpl;
+
+    private final ServiceCImpl serviceCImpl = this;
+
+    private ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
+      this.singletonCImpl = singletonCImpl;
+
+
+    }
+
+    @Override
+    public void injectFCMService(FCMService arg0) {
+      injectFCMService2(arg0);
+    }
+
+    @CanIgnoreReturnValue
+    private FCMService injectFCMService2(FCMService instance) {
+      FCMService_MembersInjector.injectNotificationRepository(instance, singletonCImpl.provideNotificationRepositoryProvider.get());
+      FCMService_MembersInjector.injectTokenManager(instance, singletonCImpl.provideTokenManagerProvider.get());
+      return instance;
+    }
+  }
+
+  private static final class SingletonCImpl extends CarbonCreditApp_HiltComponents.SingletonC {
+    private final ApplicationContextModule applicationContextModule;
+
+    private final SingletonCImpl singletonCImpl = this;
+
+    private Provider<TokenManager> provideTokenManagerProvider;
+
+    private Provider<SupabaseClient> provideSupabaseClientProvider;
+
+    private Provider<AnomalyRepository> provideAnomalyRepositoryProvider;
+
+    private Provider<FacilityRepository> provideFacilityRepositoryProvider;
+
+    private Provider<SensorRepository> provideSensorRepositoryProvider;
+
+    private Provider<CreditRepository> provideCreditRepositoryProvider;
+
+    private Provider<Retrofit> provideRetrofitProvider;
+
+    private Provider<ApiService> provideApiServiceProvider;
+
+    private Provider<BlockchainRepository> provideBlockchainRepositoryProvider;
+
+    private Provider<AuthRepository> provideAuthRepositoryProvider;
+
+    private Provider<NotificationRepository> provideNotificationRepositoryProvider;
+
+    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+      this.applicationContextModule = applicationContextModuleParam;
+      initialize(applicationContextModuleParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.provideTokenManagerProvider = DoubleCheck.provider(new SwitchingProvider<TokenManager>(singletonCImpl, 0));
+      this.provideSupabaseClientProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseClient>(singletonCImpl, 2));
+      this.provideAnomalyRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AnomalyRepository>(singletonCImpl, 1));
+      this.provideFacilityRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<FacilityRepository>(singletonCImpl, 3));
+      this.provideSensorRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SensorRepository>(singletonCImpl, 4));
+      this.provideCreditRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CreditRepository>(singletonCImpl, 5));
+      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 8));
+      this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 7));
+      this.provideBlockchainRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<BlockchainRepository>(singletonCImpl, 6));
+      this.provideAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 9));
+      this.provideNotificationRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<NotificationRepository>(singletonCImpl, 10));
+    }
+
+    @Override
+    public void injectCarbonCreditApp(CarbonCreditApp carbonCreditApp) {
+    }
+
+    @Override
+    public Set<Boolean> getDisableFragmentGetContextFix() {
+      return ImmutableSet.<Boolean>of();
+    }
+
+    @Override
+    public ActivityRetainedComponentBuilder retainedComponentBuilder() {
+      return new ActivityRetainedCBuilder(singletonCImpl);
+    }
+
+    @Override
+    public ServiceComponentBuilder serviceComponentBuilder() {
+      return new ServiceCBuilder(singletonCImpl);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.carboncredit.app.core.security.TokenManager 
+          return (T) AppModule_ProvideTokenManagerFactory.provideTokenManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 1: // com.carboncredit.app.data.repository.AnomalyRepository 
+          return (T) RepositoryModule_ProvideAnomalyRepositoryFactory.provideAnomalyRepository(singletonCImpl.provideSupabaseClientProvider.get());
+
+          case 2: // io.github.jan.supabase.SupabaseClient 
+          return (T) NetworkModule_ProvideSupabaseClientFactory.provideSupabaseClient();
+
+          case 3: // com.carboncredit.app.data.repository.FacilityRepository 
+          return (T) RepositoryModule_ProvideFacilityRepositoryFactory.provideFacilityRepository(singletonCImpl.provideSupabaseClientProvider.get());
+
+          case 4: // com.carboncredit.app.data.repository.SensorRepository 
+          return (T) RepositoryModule_ProvideSensorRepositoryFactory.provideSensorRepository(singletonCImpl.provideSupabaseClientProvider.get());
+
+          case 5: // com.carboncredit.app.data.repository.CreditRepository 
+          return (T) RepositoryModule_ProvideCreditRepositoryFactory.provideCreditRepository(singletonCImpl.provideSupabaseClientProvider.get());
+
+          case 6: // com.carboncredit.app.data.repository.BlockchainRepository 
+          return (T) RepositoryModule_ProvideBlockchainRepositoryFactory.provideBlockchainRepository(singletonCImpl.provideApiServiceProvider.get());
+
+          case 7: // com.carboncredit.app.core.network.ApiService 
+          return (T) NetworkModule_ProvideApiServiceFactory.provideApiService(singletonCImpl.provideRetrofitProvider.get());
+
+          case 8: // retrofit2.Retrofit 
+          return (T) NetworkModule_ProvideRetrofitFactory.provideRetrofit(singletonCImpl.provideTokenManagerProvider.get());
+
+          case 9: // com.carboncredit.app.data.repository.AuthRepository 
+          return (T) RepositoryModule_ProvideAuthRepositoryFactory.provideAuthRepository(singletonCImpl.provideSupabaseClientProvider.get(), singletonCImpl.provideTokenManagerProvider.get());
+
+          case 10: // com.carboncredit.app.data.repository.NotificationRepository 
+          return (T) RepositoryModule_ProvideNotificationRepositoryFactory.provideNotificationRepository(singletonCImpl.provideSupabaseClientProvider.get(), singletonCImpl.provideApiServiceProvider.get());
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+}
