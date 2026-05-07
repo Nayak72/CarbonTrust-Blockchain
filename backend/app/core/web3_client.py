@@ -76,13 +76,36 @@ class Web3Client:
 
     def __init__(self):
         self.w3 = Web3(Web3.HTTPProvider(settings.POLYGON_RPC_URL))
-        self.account = self.w3.eth.account.from_key(settings.DEPLOYER_PRIVATE_KEY)
-        self.contract = self.w3.eth.contract(
-            address=Web3.to_checksum_address(settings.CONTRACT_ADDRESS),
-            abi=CONTRACT_ABI
-        )
-        logger.info(f"Web3 connected: {self.w3.is_connected()}")
-        logger.info(f"Wallet address: {self.account.address}")
+        self.account = None
+        self.contract = None
+        self.enabled = False
+
+        try:
+            # Check for placeholder or empty key
+            if not settings.DEPLOYER_PRIVATE_KEY or "your-wallet" in settings.DEPLOYER_PRIVATE_KEY:
+                logger.warning("Blockchain disabled: DEPLOYER_PRIVATE_KEY is missing or contains placeholder.")
+                return
+
+            self.account = self.w3.eth.account.from_key(settings.DEPLOYER_PRIVATE_KEY)
+            
+            # Check for placeholder or empty contract address
+            if not settings.CONTRACT_ADDRESS or "YourDeployed" in settings.CONTRACT_ADDRESS:
+                logger.warning("Blockchain disabled: CONTRACT_ADDRESS is missing or contains placeholder.")
+                return
+
+            self.contract = self.w3.eth.contract(
+                address=Web3.to_checksum_address(settings.CONTRACT_ADDRESS),
+                abi=CONTRACT_ABI
+            )
+            
+            self.enabled = True
+            logger.info(f"Web3 connected: {self.w3.is_connected()}")
+            logger.info(f"Wallet address: {self.account.address}")
+            logger.info(f"Contract address: {self.contract.address}")
+
+        except Exception as e:
+            logger.error(f"Failed to initialize Web3 client: {e}")
+            logger.warning("Blockchain functionality will be unavailable.")
 
     async def issue_credit_on_chain(
         self,
@@ -95,6 +118,9 @@ class Web3Client:
         credits_kg: credits in grams (1 tonne = 1,000,000 grams for precision)
         Returns: { tx_hash, block_number }
         """
+        if not self.enabled:
+            raise RuntimeError("Blockchain client is not initialized. Check your .env configuration.")
+
         nonce = self.w3.eth.get_transaction_count(self.account.address)
         gas_price = self.w3.eth.gas_price
 

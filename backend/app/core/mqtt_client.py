@@ -18,14 +18,20 @@ class MQTTHandler:
     def __init__(self):
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.client.username_pw_set(settings.MQTT_USERNAME, settings.MQTT_PASSWORD)
+        self.loop = None
+        self._initialized = True
 
         if settings.MQTT_TLS_ENABLED:
-            context = ssl.create_default_context(cafile=settings.MQTT_CA_CERT_PATH)
-            self.client.tls_set_context(context)
+            try:
+                context = ssl.create_default_context(cafile=settings.MQTT_CA_CERT_PATH)
+                self.client.tls_set_context(context)
+            except Exception as e:
+                logger.warning(f"MQTT TLS setup failed: {e}. MQTT client will be disabled.")
+                self._initialized = False
+                return
 
         self.client.on_connect = self._on_connect
         self.client.on_message = self._on_message
-        self.loop = None
 
     def _on_connect(self, client, userdata, flags, reason_code, properties):
         if reason_code == 0:
@@ -49,6 +55,10 @@ class MQTTHandler:
 
     def start(self):
         """Start the MQTT client and connect to the broker."""
+        if not getattr(self, "_initialized", False):
+            logger.warning("MQTT client not initialized properly. Skipping start.")
+            return
+
         try:
             self.loop = asyncio.get_event_loop()
         except RuntimeError:
@@ -68,9 +78,10 @@ class MQTTHandler:
 
     def stop(self):
         """Stop the MQTT client gracefully."""
-        self.client.loop_stop()
-        self.client.disconnect()
-        logger.info("MQTT client stopped")
+        if getattr(self, "_initialized", False):
+            self.client.loop_stop()
+            self.client.disconnect()
+            logger.info("MQTT client stopped")
 
 
 mqtt_handler = MQTTHandler()

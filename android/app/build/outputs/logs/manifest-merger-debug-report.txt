@@ -315,7 +315,7 @@ MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/koushiknayakau/
 	android:theme
 		ADDED from /home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:20:9-50
 	android:usesCleartextTraffic
-		ADDED from /home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:21:9-45
+		ADDED from /home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:21:9-44
 	android:name
 		ADDED from /home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:14:9-40
 activity#com.carboncredit.app.ui.splash.SplashActivity

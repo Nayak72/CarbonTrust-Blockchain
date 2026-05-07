@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     POLYGON_CHAIN_ID: int = 80002
     CONTRACT_ADDRESS: str = ""
     DEPLOYER_PRIVATE_KEY: str = ""
+    POLYGONSCAN_API_KEY: str = ""
 
     # Firebase
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"
@@ -41,6 +42,12 @@ class Settings(BaseSettings):
     CREDIT_CALCULATION_WINDOW_HOURS: int = 24
     ANOMALY_ZSCORE_THRESHOLD: float = 3.0
     ANOMALY_FROZEN_COUNT_THRESHOLD: int = 5
+
+    # Simulator (for demo / presentation)
+    SIMULATOR_ENABLED: bool = False
+    SIMULATOR_DEVICE_ID: str = "DEMO_SENSOR_001"
+    SIMULATOR_AUTH_KEY: str = "demo-auth-key-12345"
+    SIMULATOR_INTERVAL_SECONDS: float = 10.0
 
     class Config:
         env_file = ".env"

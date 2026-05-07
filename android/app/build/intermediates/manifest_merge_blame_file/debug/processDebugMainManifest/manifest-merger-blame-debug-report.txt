@@ -123,8 +123,8 @@
 63        android:testOnly="true"
 64        android:theme="@style/Theme.CarbonCredit"
 64-->/home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:20:9-50
-65        android:usesCleartextTraffic="false" >
-65-->/home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:21:9-45
+65        android:usesCleartextTraffic="true" >
+65-->/home/koushiknayakau/IDP 2/android/app/src/main/AndroidManifest.xml:21:9-44
 66
 67        <!-- Splash / Entry -->
 68        <activity

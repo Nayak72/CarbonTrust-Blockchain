@@ -14,9 +14,13 @@ __pycache__/
 .venv/
 venv/
 ENV/
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
 .pytest_cache/
 .mypy_cache/
 .flake8
+*.log
 
 # === Android ===
 *.iml
@@ -36,6 +40,11 @@ ENV/
 /google-services.json
 *.keystore
 !debug.keystore
+/android/app/build/
+/android/build/
+/android/.idea/
+/android/captures/
+/android/local.properties
 
 # === Node.js & Hardhat ===
 node_modules/
@@ -50,3 +59,6 @@ coverage.json
 # === System Files ===
 .DS_Store
 Thumbs.db
+
+SETUP_GUIDE.md
+db_pass.txt
