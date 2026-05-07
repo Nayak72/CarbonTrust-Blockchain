@@ -26,12 +26,9 @@ backend/**/*.pyc
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# IDE configurations (Android Studio / IntelliJ)
+.idea/
+*.iml
 .DS_Store
 /build
 /captures
@@ -60,5 +57,3 @@ coverage.json
 .DS_Store
 Thumbs.db
 
-SETUP_GUIDE.md
-db_pass.txt
