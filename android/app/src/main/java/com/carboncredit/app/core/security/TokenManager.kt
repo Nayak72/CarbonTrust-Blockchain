@@ -22,8 +22,19 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun saveToken(token: String) = prefs.edit().putString(KEY_JWT, token).apply()
-    fun getToken(): String? = prefs.getString(KEY_JWT, null)
+    @Volatile
+    private var cachedToken: String? = null
+
+    fun saveToken(token: String) {
+        cachedToken = token
+        prefs.edit().putString(KEY_JWT, token).apply()
+    }
+    
+    fun getToken(): String? {
+        if (cachedToken != null) return cachedToken
+        cachedToken = prefs.getString(KEY_JWT, null)
+        return cachedToken
+    }
 
     fun saveRole(role: String) = prefs.edit().putString(KEY_ROLE, role).apply()
     fun getRole(): String? = prefs.getString(KEY_ROLE, null)
@@ -39,7 +50,10 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
 
     fun isLoggedIn(): Boolean = getToken() != null
 
-    fun clear() = prefs.edit().clear().apply()
+    fun clear() {
+        cachedToken = null
+        prefs.edit().clear().apply()
+    }
 
     companion object {
         private const val KEY_JWT = "jwt"

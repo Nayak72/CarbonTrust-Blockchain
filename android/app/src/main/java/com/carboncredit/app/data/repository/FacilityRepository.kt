@@ -2,6 +2,7 @@ package com.carboncredit.app.data.repository
 
 import com.carboncredit.app.data.models.AuditorAssignment
 import com.carboncredit.app.data.models.Facility
+import com.carboncredit.app.core.network.ApiService
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import javax.inject.Inject
@@ -9,13 +10,12 @@ import javax.inject.Singleton
 
 @Singleton
 class FacilityRepository @Inject constructor(
-    private val supabase: SupabaseClient
+    private val supabase: SupabaseClient,
+    private val apiService: ApiService
 ) {
 
     suspend fun getFacilityById(facilityId: String): Facility {
-        return supabase.postgrest["facilities"]
-            .select { filter { eq("id", facilityId) } }
-            .decodeSingle<Facility>()
+        return apiService.getFacilityById(facilityId)
     }
 
     suspend fun getAssignedFacilities(auditorId: String): List<Facility> {
@@ -34,8 +34,6 @@ class FacilityRepository @Inject constructor(
     }
 
     suspend fun getAllFacilities(): List<Facility> {
-        return supabase.postgrest["facilities"]
-            .select()
-            .decodeList<Facility>()
+        return apiService.listFacilities()
     }
 }

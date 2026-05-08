@@ -29,7 +29,7 @@ android {
 
         // Supabase
         buildConfigField("String", "SUPABASE_URL", "\"https://lkzxkzbyatesdcshvygy.supabase.co\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrenhremJ5YXRlc2Rjc2h2eWd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDQyOTIsImV4cCI6MjA5MzQ4MDI5Mn0.bLCK5SmC5uP20Y6PHtzZUsZFtFgd5KpOOtKoJ6CbL1U\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrenhremJ5YXRlc2Rjc2h2eWd5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzkwNDI5MiwiZXhwIjoyMDkzNDgwMjkyfQ.AmcCwjVhl0C0ledsnomXs60AWXgB9RWqdPRTh7UadNI\"")
 
         // FastAPI
         buildConfigField("String", "FASTAPI_BASE_URL", "\"http://10.0.2.2:8000/api/v1/\"")
@@ -112,7 +112,6 @@ dependencies {
     // Supabase
     implementation("io.github.jan-tennert.supabase:postgrest-kt:2.6.1")
     implementation("io.github.jan-tennert.supabase:realtime-kt:2.6.1")
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.6.1")
     implementation("io.github.jan-tennert.supabase:storage-kt:2.6.1")
     implementation("io.ktor:ktor-client-android:2.3.12")
 

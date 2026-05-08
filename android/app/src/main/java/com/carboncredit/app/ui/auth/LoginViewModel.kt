@@ -43,7 +43,8 @@ class LoginViewModel @Inject constructor(
         email: String,
         password: String,
         confirmPassword: String,
-        role: String
+        role: String,
+        companyInfo: com.carboncredit.app.data.models.CompanyInfo? = null
     ) {
         if (fullName.isBlank() || email.isBlank() || password.isBlank()) {
             _signUpState.value = Resource.Error("Please fill in all fields")
@@ -60,7 +61,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _signUpState.value = Resource.Loading()
             try {
-                val profile = authRepository.signUp(fullName, email, password, role)
+                val profile = authRepository.signUp(fullName, email, password, role, companyInfo)
                 _signUpState.value = Resource.Success(profile)
             } catch (e: Exception) {
                 _signUpState.value = Resource.Error(e.message ?: "Sign up failed")

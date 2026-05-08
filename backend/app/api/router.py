@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.api.routes import auth, ipfs, credits, sensors, readings, facilities, anomalies
+from app.api.routes.simulator import router as simulator_router
 
 api_router = APIRouter()
 
@@ -11,3 +12,4 @@ api_router.include_router(sensors.router)
 api_router.include_router(readings.router)
 api_router.include_router(facilities.router)
 api_router.include_router(anomalies.router)
+api_router.include_router(simulator_router)

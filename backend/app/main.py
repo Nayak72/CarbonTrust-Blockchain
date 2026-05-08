@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.mqtt_client import mqtt_handler
-from app.core.simulator import SensorSimulator, simulator
 from app.config import settings
 from app.api.router import api_router
 from app.utils.logger import get_logger
@@ -14,29 +13,50 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """
     Manages application startup and shutdown events.
-    - Startup: Connects MQTT subscriber and/or starts demo simulator
-    - Shutdown: Gracefully disconnects MQTT client and stops simulator
+    - Startup: Connects MQTT subscriber and/or starts demo simulators
+    - Shutdown: Gracefully disconnects MQTT client and stops all simulators
     """
     # Startup
     logger.info("Starting Carbon Credit Backend...")
     mqtt_handler.start()
     logger.info("MQTT subscriber started")
 
+    from app.core.simulator import simulator_manager
+    from app.core.supabase_client import get_supabase
+
     if settings.SIMULATOR_ENABLED:
-        global simulator
-        simulator = SensorSimulator(
-            device_id=settings.SIMULATOR_DEVICE_ID,
-            auth_key=settings.SIMULATOR_AUTH_KEY,
-            interval_seconds=settings.SIMULATOR_INTERVAL_SECONDS
-        )
-        simulator.start()
-        logger.info(
-            f"Sensor simulator ENABLED — device={settings.SIMULATOR_DEVICE_ID}, "
-            f"interval={settings.SIMULATOR_INTERVAL_SECONDS}s. "
-            f"Make sure this device is registered via POST /api/v1/sensors/register"
-        )
+        logger.info("Simulator ENABLED — auto-starting for all registered virtual sensors...")
+        try:
+            supabase = get_supabase()
+            # Fetch all active sensors and filter for virtual (SIM_) ones in Python.
+            sensors_result = supabase.table("sensors") \
+                .select("id, device_id, facility_id, auth_key, sim_auth_key_raw") \
+                .eq("is_active", True) \
+                .execute()
+
+            virtual_sensors = [
+                s for s in (sensors_result.data or [])
+                if s.get("device_id", "").startswith("SIM_")
+            ]
+
+            started_count = 0
+            for sensor in virtual_sensors:
+                try:
+                    simulator_manager.start(
+                        facility_id=sensor["facility_id"],
+                        device_id=sensor["device_id"],
+                        auth_key=sensor.get("sim_auth_key_raw") or sensor["auth_key"],
+                        interval_seconds=settings.SIMULATOR_INTERVAL_SECONDS
+                    )
+                    started_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to auto-start simulator for {sensor['device_id']}: {e}")
+
+            logger.info(f"Auto-started {started_count} simulators for virtual sensors")
+        except Exception as e:
+            logger.error(f"Simulator auto-start failed: {e}")
     else:
-        logger.info("Sensor simulator DISABLED (set SIMULATOR_ENABLED=true to enable)")
+        logger.info("Simulator DISABLED (set SIMULATOR_ENABLED=true to enable)")
 
     yield
 
@@ -44,9 +64,8 @@ async def lifespan(app: FastAPI):
     mqtt_handler.stop()
     logger.info("MQTT subscriber stopped")
 
-    if simulator is not None:
-        simulator.stop()
-        logger.info("Simulator stopped")
+    simulator_manager.stop_all()
+    logger.info("All simulators stopped")
 
 
 app = FastAPI(
@@ -76,3 +95,4 @@ app.include_router(api_router, prefix="/api/v1")
 async def health():
     """Health check endpoint for monitoring and load balancers."""
     return {"status": "ok", "service": "carbon-credit-backend"}
+

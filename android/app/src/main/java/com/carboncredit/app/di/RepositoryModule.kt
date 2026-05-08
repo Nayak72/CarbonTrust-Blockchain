@@ -18,9 +18,10 @@ object RepositoryModule {
     @Singleton
     fun provideAuthRepository(
         supabaseClient: SupabaseClient,
-        tokenManager: TokenManager
+        tokenManager: TokenManager,
+        apiService: ApiService
     ): AuthRepository {
-        return AuthRepository(supabaseClient, tokenManager)
+        return AuthRepository(supabaseClient, tokenManager, apiService)
     }
 
     @Provides
@@ -43,8 +44,11 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideFacilityRepository(supabaseClient: SupabaseClient): FacilityRepository {
-        return FacilityRepository(supabaseClient)
+    fun provideFacilityRepository(
+        supabaseClient: SupabaseClient,
+        apiService: ApiService
+    ): FacilityRepository {
+        return FacilityRepository(supabaseClient, apiService)
     }
 
     @Provides

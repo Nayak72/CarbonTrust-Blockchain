@@ -44,27 +44,33 @@ class AnomalyRepository @Inject constructor(
     }
 
     suspend fun getUnacknowledgedCount(facilityId: String): Int {
-        val anomalies = supabase.postgrest["anomaly_events"]
-            .select {
-                filter {
-                    eq("facility_id", facilityId)
-                    eq("is_acknowledged", false)
+        return try {
+            val anomalies = supabase.postgrest["anomaly_events"]
+                .select {
+                    filter { eq("facility_id", facilityId) }
+                    order("timestamp", Order.DESCENDING)
+                    limit(200)
                 }
-            }
-            .decodeList<AnomalyEvent>()
-        return anomalies.size
+                .decodeList<AnomalyEvent>()
+            anomalies.count { !it.isAcknowledged }
+        } catch (_: Exception) {
+            0
+        }
     }
 
     suspend fun getUnacknowledgedCountForFacilities(facilityIds: List<String>): Int {
-        val anomalies = supabase.postgrest["anomaly_events"]
-            .select {
-                filter {
-                    isIn("facility_id", facilityIds)
-                    eq("is_acknowledged", false)
+        return try {
+            val anomalies = supabase.postgrest["anomaly_events"]
+                .select {
+                    filter { isIn("facility_id", facilityIds) }
+                    order("timestamp", Order.DESCENDING)
+                    limit(500)
                 }
-            }
-            .decodeList<AnomalyEvent>()
-        return anomalies.size
+                .decodeList<AnomalyEvent>()
+            anomalies.count { !it.isAcknowledged }
+        } catch (_: Exception) {
+            0
+        }
     }
 
     suspend fun acknowledgeAnomaly(

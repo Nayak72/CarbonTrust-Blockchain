@@ -12,3 +12,4 @@ python-dotenv==1.0.1
 cryptography==42.0.8
 pytest==8.2.0
 pytest-asyncio==0.23.7
+passlib[bcrypt]==1.7.4

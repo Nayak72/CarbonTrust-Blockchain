@@ -28,12 +28,18 @@ async def register_sensor(
     hashed_key = hashlib.sha256(body.auth_key.encode()).hexdigest()
 
     try:
-        result = supabase.table("sensors").insert({
+        insert_data = {
             "device_id": body.device_id,
             "auth_key": hashed_key,
             "location_label": body.location_label,
             "facility_id": body.facility_id
-        }).execute()
+        }
+
+        # For virtual sensors, also store the raw key for simulator restart
+        if body.device_id.startswith("SIM_"):
+            insert_data["sim_auth_key_raw"] = body.auth_key
+
+        result = supabase.table("sensors").insert(insert_data).execute()
 
         return {"status": "registered", "sensor": result.data[0]}
     except Exception as e:

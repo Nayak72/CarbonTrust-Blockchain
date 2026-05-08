@@ -18,8 +18,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSupabaseClient(): SupabaseClient {
-        return SupabaseClientProvider.create()
+    fun provideSupabaseClient(tokenManager: TokenManager): SupabaseClient {
+        return SupabaseClientProvider.create(tokenManager)
     }
 
     @Provides

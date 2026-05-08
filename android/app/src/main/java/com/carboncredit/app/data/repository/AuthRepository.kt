@@ -1,10 +1,15 @@
 package com.carboncredit.app.data.repository
 
+import com.carboncredit.app.core.network.ApiService
+import com.carboncredit.app.core.network.FacilityOnboardRequest
+import com.carboncredit.app.core.network.SensorRegisterRequest
+import com.carboncredit.app.core.network.SimulatorStartRequest
+import com.carboncredit.app.core.network.UserLoginRequest
+import com.carboncredit.app.core.network.UserSignupRequest
 import com.carboncredit.app.core.security.TokenManager
+import com.carboncredit.app.data.models.CompanyInfo
 import com.carboncredit.app.data.models.UserProfile
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,25 +17,17 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     private val supabase: SupabaseClient,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val apiService: ApiService
 ) {
 
     suspend fun signIn(email: String, password: String): UserProfile {
-        supabase.auth.signInWith(Email) {
-            this.email = email
-            this.password = password
-        }
+        val response = apiService.login(UserLoginRequest(email, password))
+        
+        val profile = response.user
+        val userId = profile.id
 
-        val session = supabase.auth.currentSessionOrNull()
-            ?: throw Exception("No session after login")
-
-        val userId = session.user?.id ?: throw Exception("No user ID in session")
-
-        val profile = supabase.postgrest["user_profiles"]
-            .select { filter { eq("id", userId) } }
-            .decodeSingle<UserProfile>()
-
-        tokenManager.saveToken(session.accessToken)
+        tokenManager.saveToken(response.access_token)
         tokenManager.saveRole(profile.role)
         tokenManager.saveUserId(userId)
         tokenManager.saveUserName(profile.fullName)
@@ -42,11 +39,6 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signOut() {
-        try {
-            supabase.auth.signOut()
-        } catch (_: Exception) {
-            // Sign out locally even if network fails
-        }
         tokenManager.clear()
     }
 
@@ -54,41 +46,42 @@ class AuthRepository @Inject constructor(
         fullName: String,
         email: String,
         password: String,
-        role: String
+        role: String,
+        companyInfo: CompanyInfo? = null
     ): UserProfile {
-        // Create Supabase Auth user
-        supabase.auth.signUpWith(Email) {
-            this.email = email
-            this.password = password
+        var facilityId: String? = null
+
+        // Step 1: If MANAGER, create facility first to get facilityId
+        if (role == "MANAGER" && companyInfo != null) {
+            val facilityResponse = apiService.onboardFacility(
+                FacilityOnboardRequest(
+                    name = companyInfo.facilityName,
+                    company_name = companyInfo.companyName,
+                    location = companyInfo.location,
+                    industry_type = companyInfo.industryType,
+                    baseline_emissions = companyInfo.baselineEmissions
+                )
+            )
+            facilityId = facilityResponse.facility.id
         }
 
-        // Sign in immediately to get session
-        supabase.auth.signInWith(Email) {
-            this.email = email
-            this.password = password
-        }
-
-        val session = supabase.auth.currentSessionOrNull()
-            ?: throw Exception("No session after sign up")
-
-        val userId = session.user?.id ?: throw Exception("No user ID in session")
-
-        // Create user_profiles row
-        supabase.postgrest["user_profiles"]
-            .insert(mapOf(
-                "id" to userId,
-                "full_name" to fullName,
-                "email" to email,
-                "role" to role
-            ))
-
-        // Fetch back the created profile
-        val profile = supabase.postgrest["user_profiles"]
-            .select { filter { eq("id", userId) } }
-            .decodeSingle<UserProfile>()
-
-        // Save session data locally
-        tokenManager.saveToken(session.accessToken)
+        // Step 2: Create user profile via FastAPI /signup
+        // This handles password hashing, database insert, and returns the JWT token
+        val signupResponse = apiService.signup(
+            UserSignupRequest(
+                full_name = fullName,
+                email = email,
+                password = password,
+                role = role,
+                facility_id = facilityId
+            )
+        )
+        
+        val profile = signupResponse.user
+        val userId = profile.id
+        
+        // Save the token IMMEDIATELY so subsequent API calls use it
+        tokenManager.saveToken(signupResponse.access_token)
         tokenManager.saveRole(profile.role)
         tokenManager.saveUserId(userId)
         tokenManager.saveUserName(profile.fullName)
@@ -96,20 +89,48 @@ class AuthRepository @Inject constructor(
             tokenManager.saveFacilityId(profile.facilityId)
         }
 
+        // Step 3: If MANAGER, generate sensor and start simulator
+        if (role == "MANAGER" && companyInfo != null && facilityId != null) {
+            // 3a: Generate virtual sensor credentials
+            val deviceId = "SIM_${facilityId.take(8).uppercase()}"
+            val authKey = java.util.UUID.randomUUID().toString()
+
+            // 3b: Register virtual sensor via FastAPI (now authenticated!)
+            apiService.registerSensor(
+                SensorRegisterRequest(
+                    device_id = deviceId,
+                    auth_key = authKey,
+                    location_label = "Simulated Chimney Sensor",
+                    facility_id = facilityId
+                )
+            )
+
+            // 3c: Start simulator for this facility via FastAPI
+            try {
+                apiService.startSimulator(
+                    SimulatorStartRequest(
+                        facility_id = facilityId,
+                        device_id = deviceId,
+                        auth_key = authKey
+                    )
+                )
+            } catch (e: Exception) {
+                // Simulator start failure is non-fatal
+                android.util.Log.w("AuthRepository", "Simulator start failed (non-fatal): ${e.message}")
+            }
+        }
+
         return profile
     }
 
     suspend fun updatePassword(newPassword: String) {
-        supabase.auth.updateUser {
-            password = newPassword
-        }
+        // Not implemented in custom JWT flow yet
+        throw UnsupportedOperationException("Password update not implemented yet")
     }
 
     suspend fun getCurrentProfile(): UserProfile {
         val userId = tokenManager.getUserId() ?: throw Exception("Not logged in")
-        return supabase.postgrest["user_profiles"]
-            .select { filter { eq("id", userId) } }
-            .decodeSingle<UserProfile>()
+        return apiService.getMe()
     }
 
     fun isLoggedIn(): Boolean = tokenManager.isLoggedIn()
@@ -118,3 +139,4 @@ class AuthRepository @Inject constructor(
     fun getUserId(): String? = tokenManager.getUserId()
     fun getUserName(): String? = tokenManager.getUserName()
 }
+

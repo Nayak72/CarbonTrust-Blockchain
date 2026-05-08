@@ -51,11 +51,10 @@ class AuditorDashboardViewModel @Inject constructor(
     }
 
     fun loadDashboard() {
-        val userId = tokenManager.getUserId() ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val facilities = facilityRepository.getAssignedFacilities(userId)
+                val facilities = facilityRepository.getAllFacilities()
                 val monthStart = DateUtils.getDaysAgo(30)
                 val statuses = facilities.map { facility ->
                     val credits = creditRepository.getCreditsForFacility(facility.id, startTime = monthStart)

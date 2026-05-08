@@ -95,5 +95,74 @@ class SensorSimulator:
         self._task = None
 
 
-# Singleton instance managed by main.py lifespan
+
+# Singleton instance managed by main.py lifespan (legacy — kept for backward compat)
 simulator: SensorSimulator | None = None
+
+
+class SimulatorManager:
+    """
+    Manages multiple SensorSimulator instances — one per registered facility.
+    Called by the /simulator/start and /simulator/stop API endpoints,
+    and on backend startup to resume all active facilities.
+    """
+
+    def __init__(self):
+        # Key: facility_id, Value: SensorSimulator instance
+        self._simulators: dict[str, SensorSimulator] = {}
+
+    def start(
+        self,
+        facility_id: str,
+        device_id: str,
+        auth_key: str,
+        interval_seconds: float = 10.0
+    ) -> bool:
+        """
+        Start a simulator for a facility.
+        If one is already running for this facility, stops it first and restarts.
+        Returns True if started successfully.
+        """
+        # Stop existing if running
+        if facility_id in self._simulators:
+            self._simulators[facility_id].stop()
+
+        sim = SensorSimulator(
+            device_id=device_id,
+            auth_key=auth_key,
+            interval_seconds=interval_seconds
+        )
+        sim.start()
+        self._simulators[facility_id] = sim
+        logger.info(f"Simulator started for facility: {facility_id}, device: {device_id}")
+        return True
+
+    def stop(self, facility_id: str) -> bool:
+        """
+        Stop the simulator for a specific facility.
+        Returns True if it was running and stopped, False if not found.
+        """
+        if facility_id not in self._simulators:
+            return False
+        self._simulators[facility_id].stop()
+        del self._simulators[facility_id]
+        logger.info(f"Simulator stopped for facility: {facility_id}")
+        return True
+
+    def stop_all(self):
+        """Stop all running simulators. Called on backend shutdown."""
+        for facility_id, sim in list(self._simulators.items()):
+            sim.stop()
+            logger.info(f"Simulator stopped for facility: {facility_id}")
+        self._simulators.clear()
+
+    def get_running(self) -> list[str]:
+        """Return list of facility_ids that currently have running simulators."""
+        return list(self._simulators.keys())
+
+    def is_running(self, facility_id: str) -> bool:
+        return facility_id in self._simulators
+
+
+# Singleton instance
+simulator_manager = SimulatorManager()

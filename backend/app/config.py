@@ -44,13 +44,15 @@ class Settings(BaseSettings):
     ANOMALY_FROZEN_COUNT_THRESHOLD: int = 5
 
     # Simulator (for demo / presentation)
+    # Simulators are now per-facility and auto-started from the database.
+    # SIMULATOR_DEVICE_ID and SIMULATOR_AUTH_KEY are no longer used.
     SIMULATOR_ENABLED: bool = False
-    SIMULATOR_DEVICE_ID: str = "DEMO_SENSOR_001"
-    SIMULATOR_AUTH_KEY: str = "demo-auth-key-12345"
     SIMULATOR_INTERVAL_SECONDS: float = 10.0
 
     class Config:
         env_file = ".env"
+        extra = "allow"
 
 
 settings = Settings()
+
