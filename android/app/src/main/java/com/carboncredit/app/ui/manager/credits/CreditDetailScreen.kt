@@ -111,12 +111,23 @@ fun CreditDetailScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("📄 IPFS Report", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(credit.ipfsCid, fontFamily = FontFamily.Monospace, color = TextSecondary, fontSize = 12.sp)
+                            Text("This report is securely stored on the decentralized IPFS network, ensuring immutability.", color = TextSecondary, fontSize = 12.sp, lineHeight = 16.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("CID: ", color = TextSecondary, fontSize = 13.sp)
+                                Text(credit.ipfsCid.truncateMiddle(24), fontFamily = FontFamily.Monospace, color = BlockchainGold, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                IconButton(onClick = {
+                                    val clip = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    clip.setPrimaryClip(android.content.ClipData.newPlainText("IPFS CID", credit.ipfsCid))
+                                }, modifier = Modifier.size(32.dp)) {
+                                    Icon(Icons.Default.ContentCopy, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                }
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
                                 onClick = {
                                     val url = "https://gateway.pinata.cloud/ipfs/${credit.ipfsCid}"
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                                 modifier = Modifier.fillMaxWidth()
