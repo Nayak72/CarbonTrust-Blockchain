@@ -17,7 +17,8 @@
 - **🧮 Automated Credit Calculation:** Trapezoidal integration of emission reductions over time for high-precision accounting.
 - **⛓️ Blockchain Verification:** Immutable credit records minted securely on the Polygon Amoy testnet.
 - **📄 IPFS Audit Reports:** Tamper-proof JSON emission reports with content-addressed storage (Pinata).
-- **📱 Auditor & Manager Dashboards:** Native Android app built with Jetpack Compose featuring role-based access.
+- **📱 Role-Based Mobile App:** Native Android app built with Jetpack Compose featuring dedicated dashboards for Admins, Managers, and Auditors.
+- **🏢 Admin & Oversight Tools:** Hierarchical admin dashboard for global oversight of all registered companies, facilities, and real-time auditor assignment management.
 - **🔔 Push Notifications:** Firebase Cloud Messaging (FCM) alerts for anomalies and credit issuance.
 - **🧪 Built-in Demo Simulator:** Run the entire pipeline dynamically without physical hardware!
 
