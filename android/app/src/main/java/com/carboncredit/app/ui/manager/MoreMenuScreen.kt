@@ -19,7 +19,6 @@ import com.carboncredit.app.ui.theme.*
 fun MoreMenuScreen(
     onNotifications: () -> Unit,
     onAnomalyLog: () -> Unit,
-    onAuditors: () -> Unit,
     onProfile: () -> Unit
 ) {
     Column(
@@ -29,7 +28,6 @@ fun MoreMenuScreen(
         Spacer(modifier = Modifier.height(20.dp))
         MoreMenuItem(icon = Icons.Default.Notifications, title = "Notifications", onClick = onNotifications)
         MoreMenuItem(icon = Icons.Default.Warning, title = "Anomaly Log", onClick = onAnomalyLog)
-        MoreMenuItem(icon = Icons.Default.SupervisedUserCircle, title = "Auditors", onClick = onAuditors)
         MoreMenuItem(icon = Icons.Default.Person, title = "Profile & Settings", onClick = onProfile)
     }
 }

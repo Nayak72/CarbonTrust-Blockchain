@@ -50,6 +50,12 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <!-- Admin Host -->
+        <activity
+            android:name=".ui.admin.AdminActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
         <!-- Firebase Cloud Messaging Service -->
         <service
             android:name=".services.FCMService"

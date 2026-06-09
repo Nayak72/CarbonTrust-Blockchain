@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.carboncredit.app.ui.manager.analytics.EmissionAnalyticsScreen
 import com.carboncredit.app.ui.manager.anomalies.AnomalyLogScreen
-import com.carboncredit.app.ui.manager.auditors.AuditorsScreen
 import com.carboncredit.app.ui.manager.credits.CreditDetailScreen
 import com.carboncredit.app.ui.manager.credits.CreditLedgerScreen
 import com.carboncredit.app.ui.manager.dashboard.DashboardScreen
@@ -53,7 +52,6 @@ fun ManagerNavGraph(navController: NavHostController, modifier: Modifier = Modif
             MoreMenuScreen(
                 onNotifications = { navController.navigate("notifications") },
                 onAnomalyLog = { navController.navigate("anomaly_log") },
-                onAuditors = { navController.navigate("auditors") },
                 onProfile = { navController.navigate("profile") }
             )
         }
@@ -78,16 +76,6 @@ fun ManagerNavGraph(navController: NavHostController, modifier: Modifier = Modif
         composable("anomaly_log") {
             AnomalyLogScreen(
                 onViewSensor = { sensorId -> navController.navigate("sensor_detail/$sensorId") }
-            )
-        }
-
-        composable("auditors") {
-            // facility_id comes from the manager's own profile (manager can only manage their own)
-            // The screen reads facilityId from its ViewModel which gets it from the user token
-            // We pass a placeholder; the ViewModel resolves the real ID from secure storage
-            AuditorsScreen(
-                facilityId = "",   // resolved by ViewModel via user profile
-                onBack = { navController.popBackStack() }
             )
         }
 

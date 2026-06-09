@@ -1,9 +1,10 @@
-package com.carboncredit.app.ui.manager.auditors
+package com.carboncredit.app.ui.admin.auditors
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carboncredit.app.core.network.AssignedAuditorResponse
+import com.carboncredit.app.data.models.Facility
 import com.carboncredit.app.data.models.UserProfile
 import com.carboncredit.app.ui.components.EmptyState
 import com.carboncredit.app.ui.components.ErrorState
@@ -29,14 +31,10 @@ import com.carboncredit.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuditorsScreen(
-    facilityId: String,
-    onBack: () -> Unit,
-    viewModel: AuditorsViewModel = hiltViewModel()
+fun AdminAuditorsScreen(
+    viewModel: AdminAuditorsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(facilityId) { viewModel.init(facilityId) }
 
     // Success / error snackbar
     val snackbarHostState = remember { SnackbarHostState() }
@@ -48,17 +46,14 @@ fun AuditorsScreen(
         }
     }
 
+    var expanded by remember { mutableStateOf(false) }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = BackgroundDark,
         topBar = {
             TopAppBar(
                 title = { Text("Manage Auditors", color = TextPrimary) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, null, tint = TextPrimary)
-                    }
-                },
                 actions = {
                     FilledTonalButton(
                         onClick = { viewModel.openAuditorPicker() },
@@ -66,7 +61,8 @@ fun AuditorsScreen(
                         colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = BluePrimary.copy(alpha = 0.15f),
                             contentColor = BlueLight
-                        )
+                        ),
+                        enabled = state.selectedFacility != null
                     ) {
                         Icon(Icons.Default.PersonAdd, null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
@@ -82,10 +78,49 @@ fun AuditorsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            // Facility Selector
+            Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                OutlinedTextField(
+                    value = state.selectedFacility?.name ?: "Select Facility",
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = true },
+                    label = { Text("Facility") },
+                    trailingIcon = {
+                        Icon(Icons.Default.ArrowDropDown, "dropdown", modifier = Modifier.clickable { expanded = true })
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = SurfaceDark,
+                        unfocusedContainerColor = SurfaceDark,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    )
+                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth(0.9f).background(SurfaceCard)
+                ) {
+                    state.facilities.forEach { facility ->
+                        DropdownMenuItem(
+                            text = { Text(facility.name, color = TextPrimary) },
+                            onClick = {
+                                viewModel.selectFacility(facility)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
             when {
                 state.isLoading -> ShimmerList(count = 3)
                 state.error != null && state.assignedAuditors.isEmpty() ->
-                    ErrorState(state.error!!, onRetry = { viewModel.loadAssignedAuditors() })
+                    ErrorState(state.error!!, onRetry = { state.selectedFacility?.id?.let { viewModel.loadAssignedAuditors(it) } })
+                state.selectedFacility == null ->
+                    EmptyState(title = "No facility selected", subtitle = "Please select a facility to view auditors")
                 else -> {
                     if (state.assignedAuditors.isEmpty()) {
                         EmptyState(

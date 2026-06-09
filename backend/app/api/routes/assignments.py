@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from app.core.supabase_client import get_supabase
-from app.core.security import get_current_user
+from app.core.security import get_current_user, require_admin
 from app.utils.logger import get_logger
 
 router = APIRouter(prefix="/assignments", tags=["assignments"])
@@ -23,18 +23,12 @@ class RevokeRequest(BaseModel):
 # ──────────────────────────────────────────────────────────────────
 
 @router.post("/assign")
-async def assign_auditor(body: AssignRequest, user=Depends(get_current_user)):
+async def assign_auditor(body: AssignRequest, user=Depends(require_admin)):
     """
     Assign an auditor to a facility.
-    - Auth: MANAGER only.
-    - Manager can only assign auditors to their own facility.
+    - Auth: ADMIN only.
     - Creates or reactivates a row in auditor_assignments.
     """
-    if user.get("role") != "MANAGER":
-        raise HTTPException(status_code=403, detail="Only managers can assign auditors")
-
-    if user.get("facility_id") != body.facility_id:
-        raise HTTPException(status_code=403, detail="You can only assign auditors to your own facility")
 
     supabase = get_supabase()
 
@@ -82,17 +76,12 @@ async def assign_auditor(body: AssignRequest, user=Depends(get_current_user)):
 # ──────────────────────────────────────────────────────────────────
 
 @router.delete("/revoke")
-async def revoke_auditor(body: RevokeRequest, user=Depends(get_current_user)):
+async def revoke_auditor(body: RevokeRequest, user=Depends(require_admin)):
     """
     Revoke an auditor's access to a facility.
-    - Auth: MANAGER of that facility.
+    - Auth: ADMIN only.
     - Sets is_active = False (soft delete, keeps audit trail).
     """
-    if user.get("role") != "MANAGER":
-        raise HTTPException(status_code=403, detail="Only managers can revoke auditor assignments")
-
-    if user.get("facility_id") != body.facility_id:
-        raise HTTPException(status_code=403, detail="You can only revoke auditors from your own facility")
 
     supabase = get_supabase()
 
@@ -146,16 +135,11 @@ async def get_my_assigned_facilities(user=Depends(get_current_user)):
 # ──────────────────────────────────────────────────────────────────
 
 @router.get("/facility/{facility_id}/auditors")
-async def get_facility_auditors(facility_id: str, user=Depends(get_current_user)):
+async def get_facility_auditors(facility_id: str, user=Depends(require_admin)):
     """
     Returns all auditors currently assigned to a facility.
-    - Auth: MANAGER of that facility.
+    - Auth: ADMIN only.
     """
-    if user.get("role") != "MANAGER":
-        raise HTTPException(status_code=403, detail="Only managers can view facility auditors")
-
-    if user.get("facility_id") != facility_id:
-        raise HTTPException(status_code=403, detail="You can only view auditors for your own facility")
 
     supabase = get_supabase()
 
@@ -192,13 +176,11 @@ async def get_facility_auditors(facility_id: str, user=Depends(get_current_user)
 # ──────────────────────────────────────────────────────────────────
 
 @router.get("/available-auditors")
-async def get_available_auditors(user=Depends(get_current_user)):
+async def get_available_auditors(user=Depends(require_admin)):
     """
     Returns all users with role=AUDITOR (for the assignment picker UI).
-    - Auth: MANAGER only.
+    - Auth: ADMIN only.
     """
-    if user.get("role") != "MANAGER":
-        raise HTTPException(status_code=403, detail="Only managers can view the auditor list")
 
     supabase = get_supabase()
 

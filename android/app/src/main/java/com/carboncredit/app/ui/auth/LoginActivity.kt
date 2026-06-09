@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import com.carboncredit.app.core.utils.Constants
 import com.carboncredit.app.ui.manager.ManagerActivity
 import com.carboncredit.app.ui.auditor.AuditorActivity
+import com.carboncredit.app.ui.admin.AdminActivity
 import com.carboncredit.app.ui.theme.CarbonCreditTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,6 +40,7 @@ class LoginActivity : ComponentActivity() {
         val intent = when (role) {
             Constants.ROLE_MANAGER -> Intent(this, ManagerActivity::class.java)
             Constants.ROLE_AUDITOR -> Intent(this, AuditorActivity::class.java)
+            Constants.ROLE_ADMIN -> Intent(this, AdminActivity::class.java)
             else -> return
         }
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

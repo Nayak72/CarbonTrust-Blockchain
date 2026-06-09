@@ -21,6 +21,7 @@ import com.carboncredit.app.core.utils.Constants
 import com.carboncredit.app.ui.auth.LoginActivity
 import com.carboncredit.app.ui.manager.ManagerActivity
 import com.carboncredit.app.ui.auditor.AuditorActivity
+import com.carboncredit.app.ui.admin.AdminActivity
 import com.carboncredit.app.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -48,6 +49,7 @@ class SplashActivity : ComponentActivity() {
             !tokenManager.isLoggedIn() -> Intent(this, LoginActivity::class.java)
             tokenManager.getRole() == Constants.ROLE_MANAGER -> Intent(this, ManagerActivity::class.java)
             tokenManager.getRole() == Constants.ROLE_AUDITOR -> Intent(this, AuditorActivity::class.java)
+            tokenManager.getRole() == Constants.ROLE_ADMIN -> Intent(this, AdminActivity::class.java)
             else -> Intent(this, LoginActivity::class.java)
         }
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

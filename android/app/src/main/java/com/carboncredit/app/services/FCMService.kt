@@ -12,6 +12,8 @@ import com.carboncredit.app.core.utils.Constants
 import com.carboncredit.app.data.repository.NotificationRepository
 import com.carboncredit.app.ui.manager.ManagerActivity
 import com.carboncredit.app.ui.auditor.AuditorActivity
+import com.carboncredit.app.ui.admin.AdminActivity
+import com.carboncredit.app.ui.auth.LoginActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,7 +63,8 @@ class FCMService : FirebaseMessagingService() {
         val intent = when (tokenManager.getRole()) {
             Constants.ROLE_MANAGER -> Intent(this, ManagerActivity::class.java)
             Constants.ROLE_AUDITOR -> Intent(this, AuditorActivity::class.java)
-            else -> Intent(this, ManagerActivity::class.java)
+            Constants.ROLE_ADMIN -> Intent(this, AdminActivity::class.java)
+            else -> Intent(this, LoginActivity::class.java)
         }.apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("type", type)

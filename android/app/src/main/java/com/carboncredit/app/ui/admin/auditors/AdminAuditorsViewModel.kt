@@ -1,19 +1,22 @@
-package com.carboncredit.app.ui.manager.auditors
+package com.carboncredit.app.ui.admin.auditors
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carboncredit.app.core.network.AssignedAuditorResponse
-import com.carboncredit.app.core.security.TokenManager
+import com.carboncredit.app.data.models.Facility
 import com.carboncredit.app.data.models.UserProfile
 import com.carboncredit.app.data.repository.AssignmentRepository
+import com.carboncredit.app.data.repository.FacilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class AuditorsUiState(
+data class AdminAuditorsUiState(
     val isLoading: Boolean = false,
+    val facilities: List<Facility> = emptyList(),
+    val selectedFacility: Facility? = null,
     val assignedAuditors: List<AssignedAuditorResponse> = emptyList(),
     val availableAuditors: List<UserProfile> = emptyList(),
     val isPickerVisible: Boolean = false,
@@ -23,23 +26,43 @@ data class AuditorsUiState(
 )
 
 @HiltViewModel
-class AuditorsViewModel @Inject constructor(
+class AdminAuditorsViewModel @Inject constructor(
     private val assignmentRepository: AssignmentRepository,
-    private val tokenManager: TokenManager
+    private val facilityRepository: FacilityRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AuditorsUiState())
-    val uiState: StateFlow<AuditorsUiState> = _uiState
+    private val _uiState = MutableStateFlow(AdminAuditorsUiState())
+    val uiState: StateFlow<AdminAuditorsUiState> = _uiState
 
-    // facilityId resolved from encrypted token storage; may be overridden by caller
-    private var facilityId: String = ""
-
-    fun init(facilityIdOverride: String = "") {
-        facilityId = facilityIdOverride.ifBlank { tokenManager.getFacilityId() ?: "" }
-        if (facilityId.isNotBlank()) loadAssignedAuditors()
+    init {
+        loadFacilities()
     }
 
-    fun loadAssignedAuditors() {
+    private fun loadFacilities() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val facilitiesList = facilityRepository.getAllFacilities()
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    facilities = facilitiesList,
+                    selectedFacility = facilitiesList.firstOrNull()
+                )
+                if (facilitiesList.isNotEmpty()) {
+                    loadAssignedAuditors(facilitiesList.first().id)
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    fun selectFacility(facility: Facility) {
+        _uiState.value = _uiState.value.copy(selectedFacility = facility, assignedAuditors = emptyList())
+        loadAssignedAuditors(facility.id)
+    }
+
+    fun loadAssignedAuditors(facilityId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
@@ -68,6 +91,7 @@ class AuditorsViewModel @Inject constructor(
     }
 
     fun assignAuditor(auditorId: String) {
+        val facilityId = _uiState.value.selectedFacility?.id ?: return
         viewModelScope.launch {
             try {
                 assignmentRepository.assignAuditor(auditorId, facilityId)
@@ -75,7 +99,7 @@ class AuditorsViewModel @Inject constructor(
                     isPickerVisible = false,
                     successMessage = "Auditor assigned successfully"
                 )
-                loadAssignedAuditors()
+                loadAssignedAuditors(facilityId)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = "Failed to assign auditor: ${e.message}")
             }
@@ -83,11 +107,12 @@ class AuditorsViewModel @Inject constructor(
     }
 
     fun revokeAuditor(auditorId: String) {
+        val facilityId = _uiState.value.selectedFacility?.id ?: return
         viewModelScope.launch {
             try {
                 assignmentRepository.revokeAuditor(auditorId, facilityId)
                 _uiState.value = _uiState.value.copy(successMessage = "Auditor access revoked")
-                loadAssignedAuditors()
+                loadAssignedAuditors(facilityId)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = "Failed to revoke auditor: ${e.message}")
             }

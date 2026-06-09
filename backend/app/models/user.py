@@ -7,7 +7,7 @@ class UserProfile(BaseModel):
     id: str
     full_name: str
     email: str
-    role: str = Field(..., description="One of: MANAGER, AUDITOR")
+    role: str = Field(..., description="One of: ADMIN, MANAGER, AUDITOR")
     facility_id: Optional[str] = None
     fcm_token: Optional[str] = None
     avatar_url: Optional[str] = None

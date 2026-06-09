@@ -2,6 +2,7 @@ package com.carboncredit.app.core.utils
 
 object Constants {
     // Roles
+    const val ROLE_ADMIN = "ADMIN"
     const val ROLE_MANAGER = "MANAGER"
     const val ROLE_AUDITOR = "AUDITOR"
 

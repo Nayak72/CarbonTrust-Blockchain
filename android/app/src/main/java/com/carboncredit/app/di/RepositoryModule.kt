@@ -65,4 +65,10 @@ object RepositoryModule {
     fun provideBlockchainRepository(apiService: ApiService): BlockchainRepository {
         return BlockchainRepository(apiService)
     }
+
+    @Provides
+    @Singleton
+    fun provideAdminRepository(apiService: ApiService): AdminRepository {
+        return AdminRepository(apiService)
+    }
 }

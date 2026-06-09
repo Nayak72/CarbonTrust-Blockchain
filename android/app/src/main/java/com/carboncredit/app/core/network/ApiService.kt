@@ -81,6 +81,12 @@ interface ApiService {
     /** Get all users with role=AUDITOR for the assignment picker (MANAGER only) */
     @GET("assignments/available-auditors")
     suspend fun getAvailableAuditors(): List<com.carboncredit.app.data.models.UserProfile>
+
+    // ── Admin Dashboard ───────────────────────────────────────────────────
+
+    /** Get hierarchical dashboard data (ADMIN only) */
+    @GET("admin/dashboard")
+    suspend fun getAdminDashboard(): List<CompanyDashboardData>
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -216,4 +222,26 @@ data class AssignedAuditorResponse(
     val assignment_id: String? = null,
     val assigned_at: String? = null,
     val assigned_by: String? = null
+)
+
+// Admin Dashboard DTOs
+
+data class CompanyDashboardData(
+    val company_name: String,
+    val facilities: List<FacilityDashboardData>
+)
+
+data class FacilityDashboardData(
+    val id: String,
+    val name: String,
+    val location: String?,
+    val industry_type: String?,
+    val baseline_emissions: Float?,
+    val auditors: List<AuditorDashboardData>
+)
+
+data class AuditorDashboardData(
+    val id: String,
+    val full_name: String,
+    val email: String
 )
