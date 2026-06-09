@@ -99,9 +99,12 @@ async def run_pipeline(payload: dict):
             .eq("id", reading_id) \
             .execute()
 
-        # Insert anomaly event
+        # Insert anomaly event with only valid schema columns
         anomaly_result = supabase.table("anomaly_events").insert({
-            **anomaly,
+            "sensor_id": anomaly["sensor_id"],
+            "facility_id": anomaly["facility_id"],
+            "anomaly_type": anomaly["anomaly_type"],
+            "z_score": anomaly.get("z_score"),
             "timestamp": timestamp
         }).execute()
 

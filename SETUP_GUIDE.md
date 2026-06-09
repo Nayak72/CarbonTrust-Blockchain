@@ -190,10 +190,10 @@ Copy that address into your `.env`.
 Run this SQL in Supabase Dashboard → SQL Editor → New Query.
 
 ```sql
--- Users / Profiles (linked to Supabase Auth)
+-- Users / Profiles (Custom Auth)
 create table user_profiles (
-    id uuid references auth.users on delete cascade primary key,
-    role text not null check (role in ('MANAGER', 'AUDITOR')),
+    id uuid primary key,
+    role text not null check (role in ('ADMIN', 'MANAGER', 'AUDITOR')),
     facility_id uuid,
     created_at timestamptz default now()
 );

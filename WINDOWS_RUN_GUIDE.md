@@ -64,7 +64,7 @@ The system relies on Supabase for PostgreSQL database, authentication, and user 
    -- Users / Profiles (Custom Auth)
    create table user_profiles (
        id uuid primary key,
-       role text not null check (role in ('MANAGER', 'AUDITOR')),
+       role text not null check (role in ('ADMIN', 'MANAGER', 'AUDITOR')),
        facility_id uuid,
        full_name text,
        email text,
