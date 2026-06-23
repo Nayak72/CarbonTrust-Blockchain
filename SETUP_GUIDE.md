@@ -366,9 +366,12 @@ SIMULATOR_INTERVAL_SECONDS=10
 1. **Database** — Tables created in Supabase SQL Editor.
 2. **Smart Contract** — Deployed, address copied to `.env`.
 3. **Backend** — Run:
-   ```bash
    cd backend
+   # On Mac/Linux:
    source venv/bin/activate
+   # On Windows (PowerShell):
+   .\venv\Scripts\Activate.ps1
+   
    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 4. **Simulator** — With `SIMULATOR_ENABLED=true`, you should see logs like:

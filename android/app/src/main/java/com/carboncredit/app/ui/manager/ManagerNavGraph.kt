@@ -16,6 +16,7 @@ import com.carboncredit.app.ui.manager.notifications.NotificationsScreen
 import com.carboncredit.app.ui.manager.profile.ProfileScreen
 import com.carboncredit.app.ui.manager.sensors.SensorDetailScreen
 import com.carboncredit.app.ui.manager.sensors.SensorListScreen
+import com.carboncredit.app.ui.shared.chain.ChainVisualizerScreen
 
 @Composable
 fun ManagerNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -28,7 +29,8 @@ fun ManagerNavGraph(navController: NavHostController, modifier: Modifier = Modif
         composable(ManagerBottomNav.Dashboard.route) {
             DashboardScreen(
                 onSensorClick = { sensorId -> navController.navigate("sensor_detail/$sensorId") },
-                onAnomalyClick = { navController.navigate("anomaly_log") }
+                onAnomalyClick = { navController.navigate("anomaly_log") },
+                onChainVisualizerClick = { navController.navigate("chain_visualizer") }
             )
         }
 
@@ -81,5 +83,11 @@ fun ManagerNavGraph(navController: NavHostController, modifier: Modifier = Modif
 
         composable("notifications") { NotificationsScreen() }
         composable("profile") { ProfileScreen() }
+        composable("chain_visualizer") {
+            ChainVisualizerScreen(
+                onBack = { navController.popBackStack() },
+                onBlockClick = { creditId -> navController.navigate("credit_detail/$creditId") }
+            )
+        }
     }
 }

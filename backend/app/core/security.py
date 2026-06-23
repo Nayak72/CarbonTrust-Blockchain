@@ -29,7 +29,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(days=30) # Default to 30 days
+        expire = datetime.now(timezone.utc) + timedelta(hours=1) # Default to 1 hour
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
     return encoded_jwt

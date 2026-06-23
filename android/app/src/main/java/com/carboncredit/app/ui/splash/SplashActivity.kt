@@ -16,7 +16,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.carboncredit.app.core.security.TokenManager
+import com.carboncredit.app.data.repository.AuthRepository
 import com.carboncredit.app.core.utils.Constants
 import com.carboncredit.app.ui.auth.LoginActivity
 import com.carboncredit.app.ui.manager.ManagerActivity
@@ -25,6 +27,7 @@ import com.carboncredit.app.ui.admin.AdminActivity
 import com.carboncredit.app.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
@@ -32,14 +35,38 @@ import javax.inject.Inject
 class SplashActivity : ComponentActivity() {
 
     @Inject lateinit var tokenManager: TokenManager
+    @Inject lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             CarbonCreditTheme {
                 SplashScreen {
-                    navigateBasedOnRole()
+                    verifyRoleAndNavigate()
                 }
+            }
+        }
+    }
+
+    private fun verifyRoleAndNavigate() {
+        if (!tokenManager.isLoggedIn()) {
+            navigateBasedOnRole()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                // Verify with backend
+                val profile = authRepository.getCurrentProfile()
+                tokenManager.saveRole(profile.role) // Update local prefs with source of truth
+                navigateBasedOnRole()
+            } catch (e: Exception) {
+                // Token invalid or expired, or network error.
+                // For security, if token is invalid, we should log out, but to avoid 
+                // logging out on simple network failure, a more robust app might handle this differently.
+                // Here we will clear the token and go to login.
+                authRepository.signOut()
+                navigateBasedOnRole()
             }
         }
     }

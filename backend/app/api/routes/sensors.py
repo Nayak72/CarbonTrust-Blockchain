@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from app.core.supabase_client import get_supabase
-from app.core.security import get_current_user
+from app.core.security import require_manager
 import hashlib
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
@@ -17,13 +17,16 @@ class SensorRegistrationRequest(BaseModel):
 @router.post("/register")
 async def register_sensor(
     body: SensorRegistrationRequest,
-    user=Depends(get_current_user)
+    user=Depends(require_manager)
 ):
     """
     Registers a new ESP32 sensor device.
     Auth key is hashed with SHA-256 before storage so the raw key
     is never persisted — only the device knows the raw key.
     """
+    if user["facility_id"] != body.facility_id:
+        raise HTTPException(status_code=403, detail="Not your facility")
+
     supabase = get_supabase()
     hashed_key = hashlib.sha256(body.auth_key.encode()).hexdigest()
 
@@ -45,5 +48,5 @@ async def register_sensor(
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Sensor registration failed: {str(e)}"
+            detail="Sensor registration failed due to an internal error."
         )

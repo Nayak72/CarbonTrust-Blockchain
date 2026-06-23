@@ -27,13 +27,17 @@ import com.carboncredit.app.ui.auditor.profile.AuditorProfileScreen
 import com.carboncredit.app.ui.auditor.reports.AuditReportScreen
 import com.carboncredit.app.ui.auditor.verification.BlockchainVerificationScreen
 import com.carboncredit.app.ui.manager.credits.CreditDetailScreen
+import com.carboncredit.app.ui.shared.chain.ChainVisualizerScreen
 import com.carboncredit.app.ui.theme.*
 
 @Composable
 fun AuditorNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = AuditorBottomNav.Dashboard.route, modifier = modifier) {
         composable(AuditorBottomNav.Dashboard.route) {
-            AuditorDashboardScreen(onFacilityClick = { id -> navController.navigate("facility_detail/$id") })
+            AuditorDashboardScreen(
+                onFacilityClick = { id -> navController.navigate("facility_detail/$id") },
+                onChainVisualizerClick = { navController.navigate("chain_visualizer") }
+            )
         }
         composable(AuditorBottomNav.Facilities.route) {
             FacilityListScreen(onFacilityClick = { id -> navController.navigate("facility_detail/$id") })
@@ -60,6 +64,12 @@ fun AuditorNavGraph(navController: NavHostController, modifier: Modifier = Modif
         composable("auditor_notifications") { AuditorNotificationsScreen() }
         composable("audit_reports") { AuditReportScreen() }
         composable("auditor_profile") { AuditorProfileScreen() }
+        composable("chain_visualizer") {
+            ChainVisualizerScreen(
+                onBack = { navController.popBackStack() },
+                onBlockClick = { creditId -> navController.navigate("credit_detail/$creditId") }
+            )
+        }
     }
 }
 

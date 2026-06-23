@@ -6,6 +6,15 @@ db_pass.txt
 firebase-credentials.json
 *.pem
 *.key
+*.crt
+*.csr
+*.srl
+
+# === Mosquitto MQTT Broker ===
+# TLS certificates and private keys — never commit these
+backend/mosquitto/certs/
+# Mosquitto password file contains hashed broker credentials
+backend/mosquitto/passwd
 
 # === Python (Backend) ===
 __pycache__/

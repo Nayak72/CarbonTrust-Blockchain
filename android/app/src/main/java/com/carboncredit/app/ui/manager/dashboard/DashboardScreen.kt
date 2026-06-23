@@ -1,6 +1,8 @@
 package com.carboncredit.app.ui.manager.dashboard
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -15,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +33,7 @@ import com.carboncredit.app.ui.theme.*
 fun DashboardScreen(
     onSensorClick: (String) -> Unit,
     onAnomalyClick: () -> Unit,
+    onChainVisualizerClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -55,7 +60,11 @@ fun DashboardScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     color = TextPrimary
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Chain Explorer Banner
+                BlockchainVisualizerBanner(onClick = onChainVisualizerClick)
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Live CO2 Card
                 state.latestReading?.let { reading ->
@@ -166,6 +175,84 @@ private fun EmissionComparisonCard(todayEmissions: Float, baseline: Float) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("📉 ${reduction.formatTwoDecimals()}% below baseline", color = GreenLight, fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
+        }
+    }
+}
+
+@Composable
+fun BlockchainVisualizerBanner(onClick: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "chainGlow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.5f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "glowAlpha"
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        androidx.compose.ui.graphics.Color(0xFF1A1600),
+                        androidx.compose.ui.graphics.Color(0xFF2C2000),
+                        androidx.compose.ui.graphics.Color(0xFF1A1600)
+                    )
+                )
+            )
+            .border(1.dp, BlockchainGold.copy(alpha = glowAlpha), RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(BlockchainGold.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Link,
+                    contentDescription = null,
+                    tint = BlockchainGold,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Blockchain Chain Explorer",
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary,
+                    fontSize = 15.sp
+                )
+                Text(
+                    "View all blocks on Polygon Amoy",
+                    color = TextSecondary,
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "POLYGON AMOY TESTNET",
+                    color = BlockchainGold.copy(alpha = 0.7f),
+                    fontSize = 9.sp,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+            }
+            Icon(
+                Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = BlockchainGold.copy(alpha = 0.7f),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

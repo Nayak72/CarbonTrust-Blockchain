@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
 from app.core.supabase_client import get_supabase
 from app.core.security import get_current_user
+
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/facilities", tags=["facilities"])
 
@@ -46,12 +50,13 @@ async def create_facility(
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Facility creation failed: {str(e)}"
+            detail="Facility creation failed due to an internal error."
         )
 
 
 @router.post("/onboard")
-async def onboard_facility(body: FacilityOnboardRequest):
+@limiter.limit("3/day")
+async def onboard_facility(request: Request, body: FacilityOnboardRequest):
     """
     Creates a new facility during manager sign-up, BEFORE user_profiles exists.
     Called by the Android app immediately after Supabase auth sign-up + sign-in,
@@ -72,7 +77,7 @@ async def onboard_facility(body: FacilityOnboardRequest):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Facility onboarding failed: {str(e)}"
+            detail="Facility onboarding failed due to an internal error."
         )
 
 

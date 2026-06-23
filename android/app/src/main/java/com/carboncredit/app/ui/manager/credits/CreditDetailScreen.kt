@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -166,6 +168,10 @@ fun CreditDetailScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // ── On-Chain Contract Record ─────────────────────────────
+                    OnChainContractCard(credit = credit, context = context)
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     // QR Code
                     Card(colors = CardDefaults.cardColors(containerColor = SurfaceCard), shape = RoundedCornerShape(12.dp)) {
                         Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -201,6 +207,175 @@ private fun DetailRow(label: String, value: String) {
         Text(label, color = TextSecondary, fontSize = 13.sp)
         Text(value, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
+}
+
+@Composable
+private fun DetailRowMonospace(label: String, value: String, context: android.content.Context, copyLabel: String = label) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.width(100.dp))
+        Text(
+            text = value,
+            color = BlockchainGold,
+            fontSize = 11.sp,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(
+            onClick = {
+                val clip = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                clip.setPrimaryClip(android.content.ClipData.newPlainText(copyLabel, value))
+            },
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(Icons.Default.ContentCopy, null, tint = TextTertiary, modifier = Modifier.size(14.dp))
+        }
+    }
+}
+
+@Composable
+private fun OnChainContractCard(credit: com.carboncredit.app.data.models.CarbonCredit, context: android.content.Context) {
+    // Convert stored gram values (×1e6) back to tonnes for display
+    val creditsAdjTonnes = credit.creditsIssued          // already in tonnes from repository
+    val totalEmissionsTonnes = credit.actualEmissions
+    val emissionReductionTonnes = credit.emissionReduction
+
+    androidx.compose.foundation.layout.Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    listOf(
+                        androidx.compose.ui.graphics.Color(0xFF1C1800),
+                        SurfaceCard
+                    )
+                )
+            )
+            .border(1.dp, BlockchainGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            // ── Header ────────────────────────────────────────────────
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.AccountTree,
+                    contentDescription = null,
+                    tint = BlockchainGold,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        "Smart Contract Record",
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        "CarbonCreditRegistry · CreditRecord struct",
+                        color = BlockchainGold.copy(alpha = 0.6f),
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = BlockchainGold.copy(alpha = 0.2f))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ── Field: facilityId ─────────────────────────────────────
+            ContractFieldLabel("facilityId")
+            Text(
+                credit.facilityId,
+                color = TextPrimary,
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+
+            // ── Field: periodId ───────────────────────────────────────
+            credit.periodId?.let { pid ->
+                ContractFieldLabel("periodId")
+                Text(pid, color = TextPrimary, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(bottom = 10.dp))
+            }
+
+            // ── Field: creditsAdj (×1e6 grams → tonnes) ──────────────
+            ContractFieldLabel("creditsAdj  ×1e6 g → tonnes")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("${creditsAdjTonnes.formatTwoDecimals()} tonnes CO₂", color = BlockchainGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("= ${(creditsAdjTonnes * 1_000_000).toLong()} g", color = TextTertiary, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+            }
+
+            // ── Field: totalEmissions (E_total) ───────────────────────
+            ContractFieldLabel("totalEmissions  (E_total ×1e6)")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("${totalEmissionsTonnes.formatTwoDecimals()} tonnes", color = TextPrimary, fontSize = 13.sp)
+                Text("= ${(totalEmissionsTonnes * 1_000_000).toLong()} g", color = TextTertiary, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+            }
+
+            // ── Field: emissionReduction (E_red) ──────────────────────
+            ContractFieldLabel("emissionReduction  (E_red ×1e6)")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("${emissionReductionTonnes.formatTwoDecimals()} tonnes", color = GreenLight, fontSize = 13.sp)
+                Text("= ${(emissionReductionTonnes * 1_000_000).toLong()} g", color = TextTertiary, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+            }
+
+            // ── Field: reportHash (bytes32) ───────────────────────────
+            credit.reportHash?.let { hash ->
+                HorizontalDivider(color = BlockchainGold.copy(alpha = 0.15f), modifier = Modifier.padding(vertical = 6.dp))
+                DetailRowMonospace(
+                    label = "reportHash",
+                    value = hash.truncateMiddle(28),
+                    context = context,
+                    copyLabel = "Report Hash"
+                )
+            }
+
+            // ── Field: ipfsCid ────────────────────────────────────────
+            if (credit.ipfsCid.isNotBlank()) {
+                DetailRowMonospace(
+                    label = "ipfsCid",
+                    value = credit.ipfsCid.truncateMiddle(28),
+                    context = context,
+                    copyLabel = "IPFS CID"
+                )
+            }
+
+            // ── Field: timestamp ──────────────────────────────────────
+            HorizontalDivider(color = BlockchainGold.copy(alpha = 0.15f), modifier = Modifier.padding(vertical = 6.dp))
+            DetailRow("timestamp", DateUtils.formatShortDate(credit.createdAt))
+            credit.blockNumber?.let { bn ->
+                DetailRow("blockNumber", "#$bn")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContractFieldLabel(name: String) {
+    Text(
+        text = name,
+        color = BlockchainGold.copy(alpha = 0.7f),
+        fontSize = 10.sp,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 0.5.sp,
+        modifier = Modifier.padding(bottom = 2.dp)
+    )
 }
 
 private fun generateQR(text: String): Bitmap? {

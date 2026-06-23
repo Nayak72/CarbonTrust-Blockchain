@@ -18,11 +18,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carboncredit.app.core.utils.formatTwoDecimals
 import com.carboncredit.app.ui.components.*
+import com.carboncredit.app.ui.manager.dashboard.BlockchainVisualizerBanner
 import com.carboncredit.app.ui.theme.*
 
 @Composable
 fun AuditorDashboardScreen(
     onFacilityClick: (String) -> Unit,
+    onChainVisualizerClick: () -> Unit = {},
     viewModel: AuditorDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -35,7 +37,9 @@ fun AuditorDashboardScreen(
                 item {
                     Text("Auditor Dashboard", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
                     Text("Welcome, ${state.auditorName}", color = TextSecondary, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BlockchainVisualizerBanner(onClick = onChainVisualizerClick)
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
 
                 // Summary cards

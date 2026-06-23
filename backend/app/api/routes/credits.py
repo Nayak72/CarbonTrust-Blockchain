@@ -1,15 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from app.core.security import require_manager
 from app.services.emission_calculator import calculate_credits_for_facility
 from app.services.credit_issuer import issue_credit
 from app.utils.logger import get_logger
+
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/credits", tags=["credits"])
 logger = get_logger(__name__)
 
 
 @router.post("/recalculate/{facility_id}")
-async def manual_recalculate(facility_id: str, user=Depends(require_manager)):
+@limiter.limit("1/minute")
+async def manual_recalculate(request: Request, facility_id: str, user=Depends(require_manager)):
     """
     Manually triggers credit recalculation for a facility.
     Only accessible to managers of that specific facility.
@@ -36,5 +41,5 @@ async def manual_recalculate(facility_id: str, user=Depends(require_manager)):
         logger.error(f"Manual credit issuance failed: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Credit issuance failed: {str(e)}"
+            detail="Credit issuance failed due to an internal error."
         )

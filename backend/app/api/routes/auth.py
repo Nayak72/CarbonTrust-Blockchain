@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from app.core.supabase_client import get_supabase
@@ -8,6 +8,11 @@ import uuid
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = get_logger(__name__)
+
+# Import limiter inside module or use router approach. Wait, limiter is in app.main
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
 
 class FCMTokenRequest(BaseModel):
@@ -30,13 +35,23 @@ class TokenResponse(BaseModel):
     user: dict
 
 @router.post("/signup", response_model=TokenResponse)
-async def signup(body: UserSignupRequest):
+@limiter.limit("5/minute")
+async def signup(request: Request, body: UserSignupRequest):
+    if body.role == "ADMIN":
+        raise HTTPException(status_code=403, detail="Cannot register as ADMIN")
+        
     supabase = get_supabase()
     
     # 1. Check if user already exists
-    existing_user = supabase.table("user_profiles").select("id").eq("email", body.email).execute()
-    if existing_user.data:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    try:
+        existing_user = supabase.table("user_profiles").select("id").eq("email", body.email).execute()
+        if existing_user.data:
+            raise HTTPException(status_code=400, detail="Email already registered")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Database error during signup: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
         
     # 2. Hash password
     hashed_password = get_password_hash(body.password)
@@ -57,13 +72,16 @@ async def signup(body: UserSignupRequest):
     try:
         supabase.table("user_profiles").insert(user_data).execute()
     except Exception as e:
-        logger.error(f"Failed to create user profile: {str(e)}")
+        logger.error(f"Failed to create user profile: {e}")
         raise HTTPException(status_code=500, detail="Failed to create user profile")
         
     # 4. Generate JWT
     access_token = create_access_token(
         data={"sub": new_user_id, "aud": "authenticated"}
     )
+    
+    # Remove password_hash before returning
+    user_data.pop("password_hash", None)
     
     return {
         "access_token": access_token,
@@ -72,11 +90,17 @@ async def signup(body: UserSignupRequest):
     }
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: UserLoginRequest):
+@limiter.limit("5/minute")
+async def login(request: Request, body: UserLoginRequest):
     supabase = get_supabase()
     
     # 1. Find user by email
-    result = supabase.table("user_profiles").select("*").eq("email", body.email).execute()
+    try:
+        result = supabase.table("user_profiles").select("*").eq("email", body.email).execute()
+    except Exception as e:
+        logger.error(f"Database error during login: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+        
     if not result.data:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
         
@@ -90,6 +114,9 @@ async def login(body: UserLoginRequest):
     access_token = create_access_token(
         data={"sub": user["id"], "aud": "authenticated"}
     )
+    
+    # Remove password_hash before returning
+    user.pop("password_hash", None)
     
     return {
         "access_token": access_token,
