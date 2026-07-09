@@ -109,17 +109,17 @@ sequenceDiagram
 
 The `CarbonCreditRegistry.sol` (Solidity ^0.8.24) deployed on Polygon Amoy stores each carbon credit as a `CreditRecord` struct:
 
-| Field | Type | Description |
-|---|---|---|
-| `facilityId` | `string` | Facility UUID from Supabase |
-| `periodId` | `string` | Human-readable period, e.g. `"2025-05"` |
-| `creditsAdj` | `uint256` | Quality-adjusted credits × 1e6 (stored in grams) |
-| `totalEmissions` | `uint256` | Total CO₂ emissions × 1e6 (grams) |
-| `emissionReduction` | `uint256` | Emission reduction vs baseline × 1e6 (grams) |
-| `reportHash` | `bytes32` | SHA-256 of the full emission report JSON |
-| `ipfsCid` | `string` | IPFS CID for fetching the full report |
-| `timestamp` | `uint256` | `block.timestamp` at issuance |
-| `issuedBy` | `address` | Backend wallet address that called `issueCredit()` |
+| Field               | Type      | Description                                        |
+| ------------------- | --------- | -------------------------------------------------- |
+| `facilityId`        | `string`  | Facility UUID from Supabase                        |
+| `periodId`          | `string`  | Human-readable period, e.g. `"2025-05"`            |
+| `creditsAdj`        | `uint256` | Quality-adjusted credits × 1e6 (stored in grams)   |
+| `totalEmissions`    | `uint256` | Total CO₂ emissions × 1e6 (grams)                  |
+| `emissionReduction` | `uint256` | Emission reduction vs baseline × 1e6 (grams)       |
+| `reportHash`        | `bytes32` | SHA-256 of the full emission report JSON           |
+| `ipfsCid`           | `string`  | IPFS CID for fetching the full report              |
+| `timestamp`         | `uint256` | `block.timestamp` at issuance                      |
+| `issuedBy`          | `address` | Backend wallet address that called `issueCredit()` |
 
 Each credit is assigned a deterministic on-chain ID: `keccak256(facilityId, periodId, reportHash)`.
 
@@ -254,9 +254,9 @@ CarbonTrust-Blockchain/
 
 The `iot/sketch_jun19a.ino` firmware runs on an **ESP32** microcontroller with the following sensor stack:
 
-| Component | Purpose | Pin |
-|---|---|---|
-| **DHT11** | Temperature & humidity measurement | GPIO 4 |
+| Component  | Purpose                            | Pin           |
+| ---------- | ---------------------------------- | ------------- |
+| **DHT11**  | Temperature & humidity measurement | GPIO 4        |
 | **MQ-135** | CO₂ concentration (ppm) estimation | GPIO 34 (ADC) |
 
 **Communication:** The ESP32 connects to the Mosquitto MQTT broker over **TLS (port 8883)** using `WiFiClientSecure`. Sensor readings are published every 10 seconds as JSON payloads to the topic `factory/{facility_id}/readings`.
@@ -417,23 +417,18 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ## 💻 Tech Stack
 
-| Domain | Technology |
-|---|---|
-| **Backend API** | FastAPI (Python 3.11+) |
-| **Database** | Supabase (PostgreSQL + Row-Level Security) |
-| **Smart Contracts** | Solidity ^0.8.24, Hardhat |
-| **Blockchain** | Polygon Amoy Testnet |
-| **Decentralized Storage** | Pinata (IPFS) |
-| **Mobile Application** | Android (Kotlin, Jetpack Compose, Material 3, Hilt) |
-| **IoT Hardware** | ESP32 + DHT11 + MQ-135 |
-| **IoT Protocol** | MQTT over TLS v1.2 (Mosquitto, port 8883) |
-| **Push Notifications** | Firebase Cloud Messaging (FCM) |
-| **QR Verification** | ZXing (on-device QR generation for blockchain TX links) |
-
----
-
-## 📜 License
-This project is licensed under the MIT License. See the LICENSE file for details.
+| Domain                    | Technology                                              |
+| ------------------------- | ------------------------------------------------------- |
+| **Backend API**           | FastAPI (Python 3.11+)                                  |
+| **Database**              | Supabase (PostgreSQL + Row-Level Security)              |
+| **Smart Contracts**       | Solidity ^0.8.24, Hardhat                               |
+| **Blockchain**            | Polygon Amoy Testnet                                    |
+| **Decentralized Storage** | Pinata (IPFS)                                           |
+| **Mobile Application**    | Android (Kotlin, Jetpack Compose, Material 3, Hilt)     |
+| **IoT Hardware**          | ESP32 + DHT11 + MQ-135                                  |
+| **IoT Protocol**          | MQTT over TLS v1.2 (Mosquitto, port 8883)               |
+| **Push Notifications**    | Firebase Cloud Messaging (FCM)                          |
+| **QR Verification**       | ZXing (on-device QR generation for blockchain TX links) |
 
 ---
 
@@ -457,17 +452,17 @@ This report explains:
 
 The analytical model and codebase follow widely accepted standards and guidance from several international bodies:
 
-| Standard / Body | Scope |
-|---|---|
-| **IPCC** – 2006 Guidelines for National GHG Inventories | Stationary combustion and emissions calculation |
-| **GHG Protocol (WRI/WBCSD)** | Corporate GHG accounting and reporting standards |
-| **UNFCCC / CDM** | Baseline-and-credit methodology and 1 tonne CO₂e per credit convention |
-| **ICVCM** | Core Carbon Principles for high-integrity carbon credits and data quality |
-| **NIST** – FIPS 180-4 | Secure Hash Standard for SHA-256 |
-| **OASIS MQTT** | MQTT protocol specification for secure IoT messaging |
-| **OWASP** | Password Storage guidance (bcrypt) |
-| **Ethereum / EVM community** | Smart contract and event-log patterns for on-chain credit recording |
-| **IPFS / Protocol Labs** | Content-addressed storage standard via CIDs |
+| Standard / Body                                         | Scope                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **IPCC** – 2006 Guidelines for National GHG Inventories | Stationary combustion and emissions calculation                           |
+| **GHG Protocol (WRI/WBCSD)**                            | Corporate GHG accounting and reporting standards                          |
+| **UNFCCC / CDM**                                        | Baseline-and-credit methodology and 1 tonne CO₂e per credit convention    |
+| **ICVCM**                                               | Core Carbon Principles for high-integrity carbon credits and data quality |
+| **NIST** – FIPS 180-4                                   | Secure Hash Standard for SHA-256                                          |
+| **OASIS MQTT**                                          | MQTT protocol specification for secure IoT messaging                      |
+| **OWASP**                                               | Password Storage guidance (bcrypt)                                        |
+| **Ethereum / EVM community**                            | Smart contract and event-log patterns for on-chain credit recording       |
+| **IPFS / Protocol Labs**                                | Content-addressed storage standard via CIDs                               |
 
 ---
 
@@ -623,19 +618,19 @@ report_hash = SHA256(report_json)
 
 ### 2.1 Core Indian Organizations in the Case Study
 
-| Organization | Role in India's Carbon Credit System | Official Link |
-|---|---|---|
-| **Ministry of Power (MoP)** | Overall policy owner of the Carbon Credit Trading Scheme (CCTS) and the Indian Carbon Market | [powermin.gov.in](https://powermin.gov.in/) |
-| **Ministry of Environment, Forest and Climate Change (MoEFCC)** | National climate strategy; formally designates covered entities under CCTS; ensures Paris Agreement alignment | [moef.gov.in](https://moef.gov.in/) |
-| **Bureau of Energy Efficiency (BEE)** | Administrator of CCTS; sets GEI targets, methodologies, MRV rules | [beeindia.gov.in](https://beeindia.gov.in/) |
-| **Grid Controller of India Ltd (Grid-India)** | National registry that issues, holds, and cancels Carbon Credit Certificates | [grid-india.in](https://www.grid-india.in/) |
-| **Central Electricity Regulatory Commission (CERC)** | Regulates trading of CCCs on power exchanges | [cercind.gov.in](https://cercind.gov.in/) |
-| **National Steering Committee for Indian Carbon Market (NSCICM)** | High-level committee constituted under CCTS to steer market design and targets | [BEE – NSCICM](https://beeindia.gov.in/show_content.php?lang=1&level=1&ls_id=116&lid=294) |
-| **Central Pollution Control Board (CPCB)** | National body for water, air, and noise pollution monitoring standards, relevant to industrial emission compliance | [cpcb.nic.in](https://cpcb.nic.in/) |
-| **Energy Conservation (Amendment) Act, 2022** | Legal basis empowering the government to establish CCTS and issue CCCs | [EC Amendment Act 2022 (PDF)](https://beeindia.gov.in/sites/default/files/Energy%20Conservation%20Amendment%20Act%202022.pdf) |
-| **Accredited Carbon Verification Agencies (ACVAs)** | Third-party verifiers empanelled by BEE to verify emission and reduction data under CCTS | [BEE – ACVAs](https://beeindia.gov.in/view_content.php?lid=568&lang=1) |
-| **India.gov.in Environment Portal** | National portal aggregating links and services for environment and forestry regulation | [india.gov.in/environment](https://www.india.gov.in/topics/environment-forest/environment) |
-| **Parivesh (Environmental Clearance Portal)** | Online system for submitting and monitoring environmental/forest/wildlife clearances | [environmentclearance.nic.in](https://environmentclearance.nic.in/) |
+| Organization                                                      | Role in India's Carbon Credit System                                                                               | Official Link                                                                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Ministry of Power (MoP)**                                       | Overall policy owner of the Carbon Credit Trading Scheme (CCTS) and the Indian Carbon Market                       | [powermin.gov.in](https://powermin.gov.in/)                                                                                   |
+| **Ministry of Environment, Forest and Climate Change (MoEFCC)**   | National climate strategy; formally designates covered entities under CCTS; ensures Paris Agreement alignment      | [moef.gov.in](https://moef.gov.in/)                                                                                           |
+| **Bureau of Energy Efficiency (BEE)**                             | Administrator of CCTS; sets GEI targets, methodologies, MRV rules                                                  | [beeindia.gov.in](https://beeindia.gov.in/)                                                                                   |
+| **Grid Controller of India Ltd (Grid-India)**                     | National registry that issues, holds, and cancels Carbon Credit Certificates                                       | [grid-india.in](https://www.grid-india.in/)                                                                                   |
+| **Central Electricity Regulatory Commission (CERC)**              | Regulates trading of CCCs on power exchanges                                                                       | [cercind.gov.in](https://cercind.gov.in/)                                                                                     |
+| **National Steering Committee for Indian Carbon Market (NSCICM)** | High-level committee constituted under CCTS to steer market design and targets                                     | [BEE – NSCICM](https://beeindia.gov.in/show_content.php?lang=1&level=1&ls_id=116&lid=294)                                     |
+| **Central Pollution Control Board (CPCB)**                        | National body for water, air, and noise pollution monitoring standards, relevant to industrial emission compliance | [cpcb.nic.in](https://cpcb.nic.in/)                                                                                           |
+| **Energy Conservation (Amendment) Act, 2022**                     | Legal basis empowering the government to establish CCTS and issue CCCs                                             | [EC Amendment Act 2022 (PDF)](https://beeindia.gov.in/sites/default/files/Energy%20Conservation%20Amendment%20Act%202022.pdf) |
+| **Accredited Carbon Verification Agencies (ACVAs)**               | Third-party verifiers empanelled by BEE to verify emission and reduction data under CCTS                           | [BEE – ACVAs](https://beeindia.gov.in/view_content.php?lid=568&lang=1)                                                        |
+| **India.gov.in Environment Portal**                               | National portal aggregating links and services for environment and forestry regulation                             | [india.gov.in/environment](https://www.india.gov.in/topics/environment-forest/environment)                                    |
+| **Parivesh (Environmental Clearance Portal)**                     | Online system for submitting and monitoring environmental/forest/wildlife clearances                               | [environmentclearance.nic.in](https://environmentclearance.nic.in/)                                                           |
 
 ---
 
@@ -712,3 +707,8 @@ The CarbonTrust analytical model and implementation:
   - Blockchain-based immutable recording
 
 These features directly address typical loopholes in current systems such as **manual data handling, time lag, limited transparency, integrity risks, and double counting**.
+
+---
+
+## 📜 License
+This project is for demonstration purposes. All rights reserved.
