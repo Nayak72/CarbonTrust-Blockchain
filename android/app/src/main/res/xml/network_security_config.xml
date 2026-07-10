@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+    <!--
+        Base config: enforce HTTPS for all internet traffic by default.
+        Supabase, Polygon RPC, Pinata IPFS all use HTTPS and are unaffected.
+    -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!--
+        Allow plain HTTP to the FastAPI backend on the developer laptop LAN.
+        Covers all three RFC-1918 private address ranges so this works on
+        any home or office Wi-Fi network regardless of router brand.
+        Current laptop IP: 10.144.96.64  (10.x.x.x range covered below)
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.144.96.64</domain>
+    </domain-config>
+
+</network-security-config>

@@ -79,12 +79,23 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+<<<<<<< Updated upstream
 # CORS — allow all origins for mobile app access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+=======
+# CORS — allow all origins so Android phone on LAN can reach this backend.
+# In production, restrict this to your actual domain(s).
+# For local Wi-Fi demo:  allow_origins=["*"] is required because the phone
+# connects via its LAN IP (e.g. http://192.168.1.5) which is NOT localhost.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # allow any origin (phone on Wi-Fi)
+>>>>>>> Stashed changes
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    allow_credentials=False,      # must be False when allow_origins=["*"]
 )
 
 # Mount all API routes under /api/v1

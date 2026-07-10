@@ -31,8 +31,26 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"https://lkzxkzbyatesdcshvygy.supabase.co\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrenhremJ5YXRlc2Rjc2h2eWd5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzkwNDI5MiwiZXhwIjoyMDkzNDgwMjkyfQ.AmcCwjVhl0C0ledsnomXs60AWXgB9RWqdPRTh7UadNI\"")
 
-        // FastAPI
-        buildConfigField("String", "FASTAPI_BASE_URL", "\"http://10.0.2.2:8000/api/v1/\"")
+        // ─────────────────────────────────────────────────────────────────────
+        // FastAPI — PHYSICAL PHONE SETUP
+        //
+        // STEP 1: Find your laptop's Wi-Fi IP address.
+        //   Windows PowerShell: ipconfig
+        //   Look for "IPv4 Address" under your Wi-Fi adapter, e.g. 192.168.1.105
+        //
+        // STEP 2: Replace YOUR_LAPTOP_IP below with that IP address.
+        //   Example: "http://192.168.1.105:8000/api/v1/"
+        //
+        // STEP 3: Ensure your laptop and phone are on the SAME Wi-Fi network.
+        //
+        // STEP 4: Ensure Windows Firewall allows port 8000 (see SETUP_GUIDE.md).
+        //
+        // DO NOT use:
+        //   - "http://localhost:8000/"    → phone cannot resolve 'localhost'
+        //   - "http://127.0.0.1:8000/"   → phone's own loopback, not laptop
+        //   - "http://10.0.2.2:8000/"    → only works in Android Emulator
+        // ─────────────────────────────────────────────────────────────────────
+        buildConfigField("String", "FASTAPI_BASE_URL", "\"http://10.144.96.64:8000/api/v1/\"")
 
         // Polygon Blockchain
         buildConfigField("String", "POLYGON_RPC_URL", "\"https://rpc-amoy.polygon.technology/\"")
@@ -45,6 +63,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
